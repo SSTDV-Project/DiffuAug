@@ -12,9 +12,10 @@ from torch.utils.data import Dataset, DataLoader
 
 from sklearn.metrics import roc_auc_score
 
-from DiffusionForBreastMRI.srcs.classification.datasets.duke_dataset_for_classification import DukeDatasetClassification
-from DiffusionForBreastMRI import utility
-from DiffusionForBreastMRI.srcs.classification.models.simple_cnn import SimpleCNN
+from DiffuAug.srcs.datasets.duke_for_classification import DukeDatasetClassification
+from DiffuAug.srcs import utility
+from DiffuAug.srcs.classification.models.simple_cnn import SimpleCNN
+
 
 def load_model(device, mode=None):
     # Renset
@@ -39,8 +40,7 @@ def load_model(device, mode=None):
         model = model.to(device=device)
     
     return model
-    
-    
+
 
 def train_one_epoch(cfg, model, optimizer, loss_func, train_loader, batch_size, epoch, device):
     """ 
