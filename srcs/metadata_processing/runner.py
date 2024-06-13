@@ -1,6 +1,6 @@
 import os
 
-from DiffuAug.srcs.metadata_processing.metadata_processing import make_metadata
+from DiffuAug.srcs.metadata_processing.metadata_processing import (make_metadata, split_train_test_val_csv)
 
 def main(OPTION):
     if OPTION == "make_metadata":
@@ -11,7 +11,13 @@ def main(OPTION):
             data_dir=data_dir,
             output_csv_path=output_csv_path
         )
-
+    elif OPTION == "split_data":
+        duke_csv_path = r"/workspace/DiffuAug/metadata/classification/csv/duke_metadata.csv"
+        csv_output_root_path = r"/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1"
+        split_train_test_val_csv(
+            meta_csv_path=duke_csv_path,
+            csv_output_root_path=csv_output_root_path
+        )
 
 if __name__ == "__main__":
-    main(OPTION="make_metadata")
+    main(OPTION="split_data")
