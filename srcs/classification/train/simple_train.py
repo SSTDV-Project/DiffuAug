@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 import torchvision.models as models
 from torchvision.models.resnet import ResNet18_Weights
+from torchvision.models import resnet18
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 
@@ -24,14 +25,19 @@ def train():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print("device: ", device)
     
-    model = SimpleCNN().to(device)
+    # model = SimpleCNN().to(device)
+    model = resnet18()    
+    model.conv1 = nn.Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+    num_ftrs = model.fc.in_features # 마지막 계층의 입력 특징의 수를 가져옴
+    model.fc = nn.Linear(num_ftrs, 1)  # 마지막 계층을 새로운 클래스 수에 맞게 교체 (여기서는 10개 클래스)
+    model = model.to(device)
 
     # optimizer, loss
     optimizer = optim.Adam(model.parameters(), lr=lr)
     loss_func = nn.BCELoss()
-        
+
     # Load metadata
-    classification_csv_root_path = r"/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1"
+    classification_csv_root_path = r"/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1_balanced"
     train_csv_path = os.path.join(classification_csv_root_path, 'train_dataset.csv')
     val_csv_path = os.path.join(classification_csv_root_path, 'val_dataset.csv')
     test_csv_path = os.path.join(classification_csv_root_path, 'test_dataset.csv')
