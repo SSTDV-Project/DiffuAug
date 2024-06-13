@@ -1,32 +1,56 @@
 import os
+import random
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-def make_metadata(data_dir, output_csv_path):
+def make_metadata(data_dir, output_csv_path, option="total"):
     """
-    Duke data 폴더의 경로를 받아 label이 분리된 metadata를 생성하는 함수
+    Duke data 폴더의 경로를 받아 label이 분리된 metadata를 생성하는 함수.
+    option이 "total"이면 전체 데이터에 대한 metadata를 생성하고,
+    option이 "balanced"이면 각 label별로 지정된 개수의 데이터만 사용하여 metadata를 생성한다.
     """
-    
     print("Making metadata...")
+
+    # 총 데이터를 저장할 데이터 프레임 생성
+    columns = ['data_path', 'label']
+    labeled_df = pd.DataFrame(columns=columns)
     
-    output_csv_path = os.path.join(output_csv_path, "duke_metadata.csv")
-    colums = ['data_path', 'label']
-    labeld_df = pd.DataFrame(columns=colums)
+    if option == "total":
+        output_csv_path = os.path.join(output_csv_path, "duke_metadata.csv")
+
+        for idx, label in enumerate(['neg', 'pos']):
+            data_path = os.path.join(data_dir, label)
+            for f in os.listdir(data_path):
+                df = pd.DataFrame(columns=columns)
+                file_name = os.path.join(data_path, f)
+                df['data_path'] = [file_name]
+                df['label'] = [label]
+                labeled_df = pd.concat([labeled_df, df], ignore_index=True)
+        
+        labeled_df.to_csv(output_csv_path, index=False, encoding='utf-8-sig')
     
-    for idx, label in enumerate(['neg', 'pos']):
-        data_path = os.path.join(data_dir, label)
-        for f in os.listdir(data_path):
-            df = pd.DataFrame(columns=colums)
-            file_name = os.path.join(data_path, f)
-            df['data_path'] = [file_name]
-            df['label'] = [label]
-            labeld_df = pd.concat([labeld_df, df], ignore_index=True)
+    elif option == "balanced":
+        output_csv_path = os.path.join(output_csv_path, "duke_metadata_balanced.csv")
+        
+        for idx, label in enumerate(['neg', 'pos']):
+            data_path = os.path.join(data_dir, label)
+            data_list = os.listdir(data_path)
+            random.shuffle(data_list)  # 데이터 리스트를 랜덤하게 섞음
+            data_list = data_list[:2600]  # 각 레이블 별로 2600개 선택
+            print("Data list: ", data_list)
+            for f in data_list:
+                df = pd.DataFrame(columns=columns)
+                file_name = os.path.join(data_path, f)
+                df['data_path'] = [file_name]
+                df['label'] = [label]
+                labeled_df = pd.concat([labeled_df, df], ignore_index=True)
+        
+        labeled_df.to_csv(output_csv_path, index=False, encoding='utf-8-sig')    
     
-    labeld_df.to_csv(output_csv_path, index=False, encoding='utf-8-sig')
-    print("Label neg length:", len(labeld_df[labeld_df['label'] == 'neg']))
-    print("Label pos length:", len(labeld_df[labeld_df['label'] == 'pos']))
-    print("Total length:", len(labeld_df))
+    print("Label neg length:", len(labeled_df[labeled_df['label'] == 'neg']))
+    print("Label pos length:", len(labeled_df[labeled_df['label'] == 'pos']))
+    print("Total length:", len(labeled_df))
     print("Metadata is saved at", output_csv_path)
 
 
