@@ -1,12 +1,10 @@
 paths:
-  # Training, Test CSV
-  train_csv_path: "/workspace/DiffusionForBreastMRI/srcs/classification/csv/original_train_csv/train_dataset.csv"
-  val_csv_path: "/workspace/DiffusionForBreastMRI/srcs/classification/csv/original_train_csv/val_dataset.csv"
-  test_csv_path: "/workspace/DiffusionForBreastMRI/srcs/classification/csv/original_train_csv/test_dataset.csv"
+  # Train, Val, Test CSV
+  csv_root_path: "/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1_balanced"
 
   # exp_result_path
-  model_save_path: "/workspace/DiffusionForBreastMRI/srcs/classification/results/models_file/original"
-  test_predict_result_save_path: "/workspace/DiffusionForBreastMRI/srcs/classification/results/predict_results/original"
+  model_save_path: "/data/results/classification/model_weights"
+  test_predict_result_save_path: "/data/results/classification/predicted_csv/resnet18"
 
   
 params:

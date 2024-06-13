@@ -102,9 +102,7 @@ def train_one_epoch(cfg, model, optimizer, loss_func, train_loader, batch_size, 
         
         # ROC 계산을 위해 값 저장)
         y_scores_list.extend(prob.detach().cpu().numpy())
-        y_true_list.extend(targets.cpu().numpy())    
-        # y_scores_list.extend(predicted.cpu().numpy())
-        # y_true_list.extend(targets.cpu().numpy())        
+        y_true_list.extend(targets.cpu().numpy())
         
         if idx % batch_size == batch_size-1:
             batch_loss = loss.item()
@@ -157,8 +155,6 @@ def valid_one_epoch(model, val_loader, epoch, device):
         # ROC 계산을 위해 값 저장
         y_scores_list.extend(prob.detach().cpu().numpy())
         y_true_list.extend(targets.cpu().numpy())        
-        # y_scores_list.extend(predicted.cpu().numpy())
-        # y_true_list.extend(targets.cpu().numpy())
 
     # accuracy 출력 
     acc = 100.0 * (correct / total)
@@ -284,21 +280,26 @@ def train(cfg):
     loss_and_auc_each_epoch = {}
     best_auc = 0.0
     
+    csv_root_path = cfg.paths.csv_root_path
+    train_csv_path = os.path.join(csv_root_path, "train_dataset.csv")
+    val_csv_path = os.path.join(csv_root_path, "val_dataset.csv")
+    test_csv_path = os.path.join(csv_root_path, "test_dataset.csv")
+    
     # 데이터 셋 선언
     train_dataset = DukeDatasetClassification(
-        csv_path=cfg.paths.train_csv_path,
+        csv_path=train_csv_path,
         transform=True
         )
     print(f"Train dataset length: {len(train_dataset)}")
     
     val_dataset = DukeDatasetClassification(
-        csv_path=cfg.paths.val_csv_path,
+        csv_path=val_csv_path,
         transform=True
         )
     print(f"Val dataset length: {len(val_dataset)}")
     
     test_dataset = DukeDatasetClassification(
-        csv_path=cfg.paths.test_csv_path,
+        csv_path=test_csv_path,
         transform=True
         )
     print(f"test_dataset dataset length: {len(test_dataset)}")
@@ -313,13 +314,13 @@ def train(cfg):
     val_loader = DataLoader(
         dataset=val_dataset, 
         batch_size=cfg.params.batch_size, 
-        shuffle=True, 
+        shuffle=False, 
         num_workers=4
         )
     test_loader = DataLoader(
         dataset=test_dataset, 
         batch_size=cfg.params.batch_size, 
-        shuffle=True, 
+        shuffle=False, 
         num_workers=4
         )
 
