@@ -84,3 +84,28 @@ def split_train_test_val_csv(meta_csv_path, csv_output_root_path):
     print("Total positive length:", len(train_data[train_data['label'] == 'pos']) + len(val_data[val_data['label'] == 'pos']) + len(test_data[test_data['label'] == 'pos']))
     
     print("Metadata is splitted and saved at", csv_output_root_path)
+    
+
+def test_leak_data(train_data_path, val_data_path, test_data_path):
+    """
+    Test data에 대한 leak 여부를 확인하는 함수
+    """
+    print("Test data leak check...")
+    
+    train_data = pd.read_csv(train_data_path)
+    val_data = pd.read_csv(val_data_path)
+    test_data = pd.read_csv(test_data_path)
+    
+    train_data_path = set(train_data['data_path'])
+    val_data_path = set(val_data['data_path'])
+    test_data_path = set(test_data['data_path'])
+
+    print("Train data path length:", len(train_data_path))
+    print("Validation data path length:", len(val_data_path))
+    print("Test data path length:", len(test_data_path))
+    
+    print("Train and Validation data path intersection:", len(train_data_path.intersection(val_data_path)))
+    print("Train and Test data path intersection:", len(train_data_path.intersection(test_data_path)))
+    print("Validation and Test data path intersection:", len(val_data_path.intersection(test_data_path)))
+    
+    print("Test data leak check is done.")
