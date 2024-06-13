@@ -23,7 +23,7 @@ class DukeDatasetClassification(Dataset):
         self.label_list = []
 
         for index, row in df.iterrows():
-            self.input_list.append(row['image_path'])
+            self.input_list.append(row['data_path'])
             self.label_list.append(row['label'])
 
     def __len__(self):

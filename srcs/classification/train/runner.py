@@ -1,4 +1,3 @@
-# from DiffusionForBreastMRI import utility    
 from DiffuAug.srcs import utility
 
 def main():
