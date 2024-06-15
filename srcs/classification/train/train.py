@@ -346,10 +346,15 @@ def train(cfg):
     # --------------- 멀쩡한 예시 -----------------#
     # Train
     for epoch in range(50):
-        epoch_loss = 0
+        train_epoch_loss = 0
         train_total = 0
         train_correct = 0
+        y_train_scores_list = list()
+        y_train_true_list = list()
+        print("Epoch: ", epoch)
+        
         for idx, data in enumerate(train_loader):
+            # model.train()
             inputs, targets, _ = data
             inputs = inputs.to(device=device, dtype=torch.float32)
             targets= targets.to(device=device, dtype=torch.float32).unsqueeze(-1)
@@ -372,24 +377,39 @@ def train(cfg):
             
             # optimization 수행
             optimizer.step()
-            epoch_loss += loss.item()
+            train_epoch_loss += loss.item()
+            
+            y_train_scores_list.extend(prob.detach().cpu().numpy())
+            y_train_true_list.extend(targets.cpu().numpy())
+
+        train_epoch_mean_loss = round(train_epoch_loss / len(train_loader), 3)
+
+        # 모든 배치에 대한 예측 확률과 실제 레이블을 하나의 배열로 합치기
+        y_train_scores = np.array(y_train_scores_list)
+        y_train_true = np.array(y_train_true_list)
+        auc_train_score = roc_auc_score(y_train_true, y_train_scores)
 
         train_acc = 100.0 * (train_correct / train_total)
         print(f"Train_acc: {train_acc}, correct: {train_correct}, total: {train_total}")
+        print(f"Train AUC: {auc_train_score}")
+        print(f"Train Epoch mean loss: {train_epoch_mean_loss} \n")
         
         # validation acc 계산
         total = 0
         correct = 0
         y_scores_list = list()
         y_true_list = list()
+        val_epoch_loss = 0.0
         for idx, data in enumerate(val_loader):
+            model.eval()
             inputs, targets, _ = data
             inputs = inputs.to(device=device, dtype=torch.float32)
             targets= targets.to(device=device, dtype=torch.float32).unsqueeze(-1)
 
             with torch.no_grad():
                 logit = model(inputs)
-            prob = torch.sigmoid(logit)
+                prob = torch.sigmoid(logit)
+                loss = loss_func(prob, targets)
             threshold = prob > 0.5
             predicted = torch.zeros_like(prob)
             predicted[threshold] = 1.0
@@ -404,18 +424,20 @@ def train(cfg):
             
             y_scores_list.extend(prob.detach().cpu().numpy())
             y_true_list.extend(targets.cpu().numpy())
-            
+            val_epoch_loss += loss.item()
+
+        val_epoch_mean_loss = round(val_epoch_loss / len(val_loader), 3)
+        
         # AUC 및 Epoch 평균 loss 계산
         # 모든 배치에 대한 예측 확률과 실제 레이블을 하나의 배열로 합치기
         y_scores = np.array(y_scores_list)
-        y_true = np.array(y_true_list)
-        
+        y_true = np.array(y_true_list)        
         auc_scroe = roc_auc_score(y_true, y_scores)
-        epoch_loss = round(epoch_loss / len(train_loader), 3)
             
         acc = 100.0 * (correct / total)
         print(f"Validation ACC: {acc}, correct: {correct}, total: {total}")
         print(f"Validation AUC: {auc_scroe}")
+        print(f"Validation Epoch mean loss: {val_epoch_mean_loss} \n")
     #  --------------- 멀쩡한 예시 -----------------#
 
     #  --------------- 멀쩡한 예시2 -----------------#
@@ -467,6 +489,7 @@ def train(cfg):
     #     val_total = 0
     #     val_correct = 0
     #     for idx, data in enumerate(val_loader):
+    #         model.eval()
     #         # 입력을 가져오기
     #         inputs, targets, _ = data
     #         inputs = inputs.to(device=device, dtype=torch.float32)
