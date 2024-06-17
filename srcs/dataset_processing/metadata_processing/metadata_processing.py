@@ -4,12 +4,17 @@ import random
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-def make_metadata(data_dir, output_csv_path, option="total"):
+def set_random_seed(seed=990912):
+    random.seed(seed)
+
+def make_metadata(data_dir, output_csv_path, output_csv_name, option="total", class_num_data=None):
     """
     Duke data 폴더의 경로를 받아 label이 분리된 metadata를 생성하는 함수.
     option이 "total"이면 전체 데이터에 대한 metadata를 생성하고,
     option이 "balanced"이면 각 label별로 지정된 개수의 데이터만 사용하여 metadata를 생성한다.
     """
+    set_random_seed()
+    
     print("Making metadata...")
 
     # 총 데이터를 저장할 데이터 프레임 생성
@@ -17,7 +22,7 @@ def make_metadata(data_dir, output_csv_path, option="total"):
     labeled_df = pd.DataFrame(columns=columns)
     
     if option == "total":
-        output_csv_path = os.path.join(output_csv_path, "duke_metadata.csv")
+        output_csv_path = os.path.join(output_csv_path, output_csv_name)
 
         for idx, label in enumerate(['neg', 'pos']):
             data_path = os.path.join(data_dir, label)
@@ -31,13 +36,13 @@ def make_metadata(data_dir, output_csv_path, option="total"):
         labeled_df.to_csv(output_csv_path, index=False, encoding='utf-8-sig')
     
     elif option == "balanced":
-        output_csv_path = os.path.join(output_csv_path, "duke_metadata_balanced.csv")
+        output_csv_path = os.path.join(output_csv_path, output_csv_name)
         
         for idx, label in enumerate(['neg', 'pos']):
             data_path = os.path.join(data_dir, label)
             data_list = os.listdir(data_path)
             random.shuffle(data_list)  # 데이터 리스트를 랜덤하게 섞음
-            data_list = data_list[:2600]  # 각 레이블 별로 2600개 선택
+            data_list = data_list[:class_num_data]  # 각 레이블 별로 2600개 선택
             print("Data list: ", data_list)
             for f in data_list:
                 df = pd.DataFrame(columns=columns)
@@ -58,6 +63,8 @@ def split_train_test_val_csv(meta_csv_path, csv_output_root_path):
     """
     Data의 metadata를 train, validation, test로 분할하는 함수
     """
+    set_random_seed()
+    
     print("Metadata splitting...")
     
     # CSV 파일 읽기
@@ -114,6 +121,8 @@ def test_leak_data(train_data_path, val_data_path, test_data_path):
     """
     Test data에 대한 leak 여부를 확인하는 함수
     """
+    set_random_seed()
+    
     print("Test data leak check...")
     
     train_data = pd.read_csv(train_data_path)
