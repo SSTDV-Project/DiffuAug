@@ -2,7 +2,9 @@ import os
 
 from DiffuAug.srcs.dataset_processing.metadata_processing.metadata_processing import (make_metadata, split_train_test_val_csv, test_leak_data)
 
-def main(OPTION):
+def main():    
+    OPTION="split_data"
+    
     if OPTION == "make_metadata":
         data_dir = r"/data/duke_data/size_64/split_datalabel"
         output_csv_path = r"/workspace/DiffuAug/metadata/classification/csv"
@@ -10,12 +12,14 @@ def main(OPTION):
         make_metadata(
             data_dir=data_dir,
             output_csv_path=output_csv_path,
-            option="balanced"
+            output_csv_name="duke_data_total_200_balanced.csv",
+            option="balanced",
+            class_num_data=100
         )
         
     elif OPTION == "split_data":
-        duke_csv_path = r"/workspace/DiffuAug/metadata/classification/csv/duke_metadata_balanced.csv"
-        csv_output_root_path = r"/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1_balanced"
+        duke_csv_path = r"/workspace/DiffuAug/metadata/classification/csv/duke_data_total_200_balanced.csv"
+        csv_output_root_path = r"/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1_balanced_200"
         split_train_test_val_csv(
             meta_csv_path=duke_csv_path,
             csv_output_root_path=csv_output_root_path
@@ -35,4 +39,4 @@ def main(OPTION):
         
 
 if __name__ == "__main__":
-    main(OPTION="split_data")
+    main()
