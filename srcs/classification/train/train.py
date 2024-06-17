@@ -175,7 +175,7 @@ def valid_one_epoch(model, val_loader, cur_epoch, device):
     return acc, auc
 
 
-def test_one_epoch(cfg, model, test_loader, epoch, device, is_save_csv=False):
+def test_one_epoch(cfg, model, test_loader, epoch, device, is_save_csv=False, best_auc=0.0):
     model.eval()
     
     test_correct = 0
@@ -223,8 +223,13 @@ def test_one_epoch(cfg, model, test_loader, epoch, device, is_save_csv=False):
         y_scores_list.extend(prob.detach().cpu().numpy())
         y_true_list.extend(targets.cpu().numpy())
     
+
+    # accuracy 출력 
+    acc = 100.0 * (test_correct / test_total)
+    auc = roc_auc_score(y_true_list, y_scores_list)
+    
     # 에포크별 예측값에 대한 결과를 CSV로 저장합니다.
-    if is_save_csv:
+    if is_save_csv & (auc > best_auc):
         savecsv_prediction_results_for_epoch(
             input_paths=epoch_input_paths,
             logits=epoch_logit,
@@ -234,11 +239,7 @@ def test_one_epoch(cfg, model, test_loader, epoch, device, is_save_csv=False):
             current_epoch=epoch,
             save_path=cfg.paths.test_predict_result_save_path
             )
-
-    # accuracy 출력 
-    acc = 100.0 * (test_correct / test_total)
-    auc = roc_auc_score(y_true_list, y_scores_list)
-    
+        
     print(f"Test ACC: {acc:.3f}, correct: {test_correct}, total: {test_total}")
     print(f"Test AUC: {auc:.3f}\n")
     
@@ -289,7 +290,8 @@ def savecsv_prediction_results_for_epoch(
 
 def train(cfg):
     loss_and_auc_each_epoch = {}
-    best_auc = 0.0
+    best_validation_auc = 0.0
+    best_test_auc = 0.0
     
     csv_root_path = cfg.paths.csv_root_path
     train_csv_path = os.path.join(csv_root_path, "train_dataset.csv")
@@ -371,15 +373,15 @@ def train(cfg):
             }
 
         # best 모델 저장
-        if val_auc > best_auc:
+        if val_auc > best_validation_auc:
             if os.path.exists(cfg.paths.model_save_path):
                 os.makedirs(cfg.paths.model_save_path, exist_ok=True)                
-            best_auc = val_auc
+            best_validation_auc = val_auc
             best_model_save_path = f"{cfg.paths.model_save_path}/model-{epoch}.pth"
                     
             utility.save_model(model, model.state_dict(), best_model_save_path)
             print('--------------------------------')
-            print(f"Best Val AUC: {best_auc:.2f}, Current Val AUC: {val_auc:.2f}")
+            print(f"Best Val AUC: {best_validation_auc:.2f}, Current Val AUC: {val_auc:.2f}")
             print(f"!!best model saved!! epoch: {epoch}, Val ACC:{cur_acc:.2f}, Val AUC:{val_auc:.2f}")
             print('--------------------------------\n')
 
@@ -389,5 +391,10 @@ def train(cfg):
             test_loader=test_loader,
             epoch=epoch,
             device=device,
-            is_save_csv=True
+            is_save_csv=True,
+            best_auc=best_test_auc
         )
+        
+        # best test auc 저장
+        if test_auc > best_test_auc:
+            best_test_auc = test_auc 
