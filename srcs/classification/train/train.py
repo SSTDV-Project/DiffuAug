@@ -297,11 +297,11 @@ def train(cfg):
         )
     val_dataset = DukeDatasetClassification(
         csv_path=val_csv_path,
-        transform=True
+        transform=False
         )
     test_dataset = DukeDatasetClassification(
         csv_path=test_csv_path,
-        transform=True
+        transform=False
         )
     
     print(f"Train dataset length: {len(train_dataset)}")

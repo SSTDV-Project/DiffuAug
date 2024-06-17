@@ -2,7 +2,7 @@ from DiffuAug.srcs.classification.train.train import train
 from DiffuAug.srcs import utility
 
 def main():
-    YAML_PATH = r"/workspace/DiffuAug/exp_settings/configs/classification/resnet18.yaml"
+    YAML_PATH = r"/workspace/DiffuAug/exp_settings/configs/classification/resnet18_total_200.yaml"
     OPTION = "train"
     
     utility.set_seed()

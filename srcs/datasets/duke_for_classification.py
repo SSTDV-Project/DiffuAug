@@ -54,7 +54,7 @@ class DukeDatasetClassification(Dataset):
     def run_albumentation(self, input_img):
         # random.seed(990912)
         transform = A.Compose([
-            A.Resize(64, 64)
+            A.Resize(64, 64),
             # A.HorizontalFlip(),
             # A.VerticalFlip(),
             # A.Rotate(limit=(-180, 180), p=0.5),
