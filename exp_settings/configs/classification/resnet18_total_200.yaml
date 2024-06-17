@@ -4,7 +4,7 @@ paths:
 
   # exp_result_path
   model_save_path: "/data/results/classification/model_weights"
-  test_predict_result_save_path: "/data/results/classification/predicted_csv/resnet18"
+  test_predict_result_save_path: "/data/results/classification/predicted_csv/resnet18/balanced_200"
 
   
 params:
