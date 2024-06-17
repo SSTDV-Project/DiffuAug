@@ -343,7 +343,7 @@ def train(cfg):
     # loss 함수 선언
     loss_func = nn.BCELoss()
     
-    # --------------- 멀쩡한 예시 -----------------#
+    #  --------------- 한 곳에서 trian, test, val 모두 확인 -----------------#
     # Train
     for epoch in range(50):
         train_epoch_loss = 0
@@ -438,110 +438,53 @@ def train(cfg):
         print(f"Validation ACC: {acc}, correct: {correct}, total: {total}")
         print(f"Validation AUC: {auc_scroe}")
         print(f"Validation Epoch mean loss: {val_epoch_mean_loss} \n")
-    #  --------------- 멀쩡한 예시 -----------------#
-
-    #  --------------- 멀쩡한 예시2 -----------------#
-    # # 에포크 수만큼 훈련 루프를 실행합니다.
-    # for epoch in range(cfg.params.epochs):
-    #     print(f'Starting training: epoch {epoch}')
-    #     model.train()
         
-    #     y_scores_list = list()
-    #     y_true_list = list()
-    #     epoch_loss = 0.0
-    #     train_total = 0   
-    #     train_correct = 0
+        # Test 성능 계산
+        test_total = 0
+        test_correct = 0
+        y_test_scores_list = list()
+        y_test_true_list = list()
+        test_epoch_loss = 0.0
+        for idx, data in enumerate(test_loader):
+            model.eval()
+            inputs, targets, _ = data
+            inputs = inputs.to(device=device, dtype=torch.float32)
+            targets= targets.to(device=device, dtype=torch.float32).unsqueeze(-1)
 
-    #     # 훈련 데이터에 대해 DataLoader를 반복합니다.
-    #     for idx, data in enumerate(train_loader):
-    #         inputs, targets, _ = data
-    #         inputs = inputs.to(device=device, dtype=torch.float32)
-    #         targets= targets.to(device=device, dtype=torch.float32).unsqueeze(-1)
+            with torch.no_grad():
+                logit = model(inputs)
+                prob = torch.sigmoid(logit)
+                loss = loss_func(prob, targets)
+            threshold = prob > 0.5
+            predicted = torch.zeros_like(prob)
+            predicted[threshold] = 1.0
 
-    #         logit = model(inputs)
-    #         prob = torch.sigmoid(logit)
-    #         loss = loss_func(prob, targets)
-
-    #         # 값이 0인 텐서를 만든 후, 임계값을 기준으로 값을 1로 설정
-    #         threshold = prob > 0.5
-    #         predicted = torch.zeros_like(prob)
-    #         predicted[threshold] = 1.0
-
-    #         train_total += predicted.size(0)
-    #         train_correct += (predicted == targets).sum().item()
-
-    #         # backpropagation을 위해 gradient를 0으로 설정합니다.
-    #         optimizer.zero_grad()
-    #         loss.backward()
+            test_total += predicted.size(0)
+            test_correct += (predicted == targets).sum().item()
             
-    #         # optimization 수행
-    #         optimizer.step()
-    #         epoch_loss += loss.item()
-
-    #         if idx % cfg.params.batch_size == cfg.params.batch_size-1:
-    #             batch_loss = loss.item()
-    #             print(f"Loss after mini-batch {idx + 1}: {batch_loss:.3f}")
-
-    #     acc = 100.0 * (train_correct / train_total)
-    #     print("Train ACC: ", acc)
-
-
-    #     val_total = 0
-    #     val_correct = 0
-    #     for idx, data in enumerate(val_loader):
-    #         model.eval()
-    #         # 입력을 가져오기
-    #         inputs, targets, _ = data
-    #         inputs = inputs.to(device=device, dtype=torch.float32)
-    #         targets = targets.to(device=device, dtype=torch.float32).unsqueeze(-1)
-
-    #         # forward pass 수행
-    #         logit = model(inputs)        
-    #         prob = torch.sigmoid(logit)
+            log_targets = targets.squeeze(-1)
+            log_predicted = predicted.squeeze(-1)
+            # print("Targets: ", log_targets)
+            # print("Predicted: ", log_predicted)
             
-    #         loss = loss_func(prob, targets)
+            y_test_scores_list.extend(prob.detach().cpu().numpy())
+            y_test_true_list.extend(targets.cpu().numpy())
+            test_epoch_loss += loss.item()
 
-    #         # 값이 0인 텐서를 만든 후, 임계값을 기준으로 값을 1로 설정
-    #         pivot = prob > cfg.params.threshold
-    #         predicted = torch.zeros_like(prob)
-    #         predicted[pivot] = 1.0
-
-    #         # backpropagation을 위해 gradient를 0으로 설정합니다.
-    #         optimizer.zero_grad()
-    #         loss.backward()
-            
-    #         # optimization 수행
-    #         optimizer.step()
-
-    #         # loss값을 출력
-    #         epoch_loss += loss.item()
-            
-    #         val_total += predicted.size(0)
-    #         val_correct += (predicted == targets).sum().item()
-            
-    #         # ROC 계산을 위해 값 저장)
-    #         y_scores_list.extend(prob.detach().cpu().numpy())
-    #         y_true_list.extend(targets.cpu().numpy())
-            
-    #         if idx % cfg.params.batch_size == cfg.params.batch_size-1:
-    #             batch_loss = loss.item()
-    #             print(f"Loss after mini-batch {idx + 1}: {batch_loss:.3f}")
-                
-    #     print("Val ACC: ", 100.0 * (val_correct / val_total))
-    #     print("Val Total: ", val_total)
-    #     print("Val Correct: ", val_correct)
-
-    #     # 모든 배치에 대한 예측 확률과 실제 레이블을 하나의 배열로 합치기
-    #     y_scores = np.array(y_scores_list)
-    #     y_true = np.array(y_true_list)
-
-    #     # AUC 및 Epoch 평균 loss 계산
-    #     auc_scroe = roc_auc_score(y_true, y_scores)
-    #     epoch_loss = round(epoch_loss / len(train_loader), 3)
+        test_epoch_mean_loss = round(test_epoch_loss / len(val_loader), 3)
         
-    #     print(f"Val AUC: {auc_scroe:.3f}")
-    #     print(f"epoch mean loss: {epoch_loss} \n")
-        #  --------------- 멀쩡한 예시2 -----------------#
+        # AUC 및 Epoch 평균 loss 계산
+        # 모든 배치에 대한 예측 확률과 실제 레이블을 하나의 배열로 합치기
+        y_scores = np.array(y_test_scores_list)
+        y_true = np.array(y_test_true_list)        
+        auc_scroe = roc_auc_score(y_true, y_scores)
+            
+        acc = 100.0 * (test_correct / test_total)
+        print(f"Test ACC: {acc}, correct: {test_correct}, total: {test_total}")
+        print(f"Test AUC: {auc_scroe}")
+        print(f"Test Epoch mean loss: {test_epoch_mean_loss} \n")
+
+    #  --------------- 한 곳에서 trian, test, val 모두 확인 -----------------#
     
     # for epoch in range(cfg.params.epochs):
     #     model, cur_loss = train_one_epoch(
