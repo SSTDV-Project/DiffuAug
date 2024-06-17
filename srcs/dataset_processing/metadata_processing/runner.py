@@ -1,6 +1,6 @@
 import os
 
-from DiffuAug.srcs.metadata_processing.metadata_processing import (make_metadata, split_train_test_val_csv, test_leak_data)
+from DiffuAug.srcs.dataset_processing.metadata_processing.metadata_processing import (make_metadata, split_train_test_val_csv, test_leak_data)
 
 def main(OPTION):
     if OPTION == "make_metadata":
