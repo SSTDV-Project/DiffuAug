@@ -19,6 +19,7 @@ params:
 
 generation:
   gen_img_num: 64
+  target_imgs_num: 2605 # 생성할 이미지의 개수
 
 cfg_params:
   sampling_class_num: 1

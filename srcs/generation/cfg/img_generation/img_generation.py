@@ -29,10 +29,6 @@ def load_model(cfg, model_path):
 def generate_cond_ddpm_img(cfg, model_path):
     model = load_model(cfg, model_path)
     
-    # 샘플링 폴더 생성
-    sampling_root_path = cfg.paths.sampling_path
-    Path(sampling_root_path).mkdir(parents=True, exist_ok=True)
-    
     # Diffusion 연산 유틸 선언
     gaussian_diffusion = GaussianDiffusion(timesteps=cfg.params.timesteps, beta_schedule='linear')
  
@@ -49,13 +45,19 @@ def generate_cond_ddpm_img(cfg, model_path):
     print("class_name: ", clas_name)
 
     # Class별 DDPM 이미지 생성 
-    target_imgs_num = 2605
+    target_imgs_num = cfg.generation.target_imgs_num
     iteration_num = target_imgs_num // batch_size
     mod = target_imgs_num % batch_size
+    
     # 나머지가 있는 경우 반복 횟수에 1 추가
     total_iteration_num = iteration_num if mod == 0 else iteration_num + 1
     print("total_iteration_num: ", total_iteration_num)
 
+    # 샘플링 폴더 생성
+    sampling_root_path = cfg.paths.sampling_path
+    sampling_path = os.path.join(sampling_root_path, clas_name)
+    Path(sampling_path).mkdir(exist_ok=True)
+    
     for i in tqdm(range(total_iteration_num)):
         generated_images = gaussian_diffusion.sample(
             model=model,
@@ -78,16 +80,12 @@ def generate_cond_ddpm_img(cfg, model_path):
             img = img + 1.0
             img = img * 255 / 2
             
-            img_save_path = os.path.join(sampling_root_path, f"{clas_name}_img_{i*batch_size+j}.png")
+            img_save_path = os.path.join(sampling_path, f"{clas_name}_img_{i*batch_size+j}.png")
             cv2.imwrite(img_save_path, img)
 
 
 def generate_cond_ddim_img(cfg, model_path):
     model = load_model(cfg, model_path)
-    
-    # 샘플링 폴더 생성
-    sampling_root_path = cfg.paths.sampling_path
-    Path(sampling_root_path).mkdir(parents=True, exist_ok=True)
     
     # Diffusion 연산 유틸 선언
     gaussian_diffusion = GaussianDiffusion(timesteps=cfg.params.timesteps, beta_schedule='linear')
@@ -109,12 +107,18 @@ def generate_cond_ddim_img(cfg, model_path):
     LABEL_IDX = 1
 
     # Class별 DDIM 이미지 생성 
-    target_imgs_num = 2000
+    target_imgs_num = cfg.generation.target_imgs_num
     iteration_num = target_imgs_num // batch_size
     mod = target_imgs_num % batch_size
+    
     # 나머지가 있는 경우 반복 횟수에 1 추가
     total_iteration_num = iteration_num if mod == 0 else iteration_num + 1
     print("total_iteration_num: ", total_iteration_num)
+
+    # 샘플링 폴더 생성    
+    sampling_root_path = cfg.paths.sampling_path
+    sampling_path = os.path.join(sampling_root_path, clas_name)
+    Path(sampling_path).mkdir(exist_ok=True)
     
     for i in range(total_iteration_num):    
         generated_images = gaussian_diffusion.ddim_sample(
@@ -143,5 +147,5 @@ def generate_cond_ddim_img(cfg, model_path):
             img = img + 1.0
             img = img * 255 / 2
             
-            img_save_path = os.path.join(sampling_root_path, f"ddim_{clas_name}_img_{i*batch_size+j}.png")
+            img_save_path = os.path.join(sampling_path, f"ddim_{clas_name}_img_{i*batch_size+j}.png")
             cv2.imwrite(img_save_path, img)
