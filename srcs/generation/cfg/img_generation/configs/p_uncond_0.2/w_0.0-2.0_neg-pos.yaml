@@ -22,7 +22,7 @@ generation:
   target_imgs_num: 2605 # 생성할 이미지의 개수
 
 cfg_params:
-  sampling_class_num: 1
+  sampling_class_num: 0
   class_num: 2
   w: 0.0
 

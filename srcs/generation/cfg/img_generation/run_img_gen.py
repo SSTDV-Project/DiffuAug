@@ -3,12 +3,12 @@ from DiffuAug.srcs import utility
 
 
 def main():
-    YAML_PATH = r"/workspace/DiffuAug/srcs/generation/cfg/img_generation/configs/p_uncond_0.2/w_0.0-2.0.yaml"
+    GEN_SETTING_YAML_PATH = r"/workspace/DiffuAug/srcs/generation/cfg/img_generation/configs/p_uncond_0.2/w_0.0-2.0_neg-pos.yaml"
     OPTION = 'ddim_class'
     
     utility.set_seed()
     
-    cfg = utility.load_config(YAML_PATH)
+    cfg = utility.load_config(GEN_SETTING_YAML_PATH)
     cfg = utility.dict2namespace(cfg)
     
     if OPTION == 'ddim_class':
