@@ -1,6 +1,6 @@
 paths:
   model_path: "/data/results/generation/exps/cfg_exps/t500/models/69_fianl_ckpt.pth"
-  sampling_path: "/data/results/generation/sampling/cfg/sampling_imgs/ddim/p_uncond_0.2/w_0.0"
+  sampling_path: "/data/results/generation/sampling/cfg/sampling_imgs/ddim/p_uncond_0.2/w_4.0"
 
 information:
   img_size: 64
@@ -22,7 +22,7 @@ generation:
   target_imgs_num: 2605 # 생성할 이미지의 개수
 
 cfg_params:
-  sampling_class_num: 0
+  sampling_class_num: 1
   class_num: 2
   w: 0.0
 
