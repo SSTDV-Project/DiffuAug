@@ -1,10 +1,11 @@
 import torch
 
 from DiffuAug.srcs.generation.metrics.fid import compute_fid
+from DiffuAug.srcs.generation.metrics.improved_precision_recall import IPR
 
 
 def main():
-    OPTION = "FID"
+    OPTION = "PRECISION_RECALL"
     
     if OPTION == "FID":
         DUKE_DATA_PATH = r"/data/duke_data/size_64/split_datalabel"
@@ -18,8 +19,29 @@ def main():
             generated_data_path=FAKE_DATA_PATH
             )
         
-    elif OPTION == "IS":
-        pass
+    elif OPTION == "PRECISION_RECALL":
+        PATH_REAL = r'/data/duke_data/size_64/split_datalabel/neg'
+        PATH_FAKE = r'/data/results/generation/sampling/cfg/sampling_imgs/ddim/p_uncond_0.2/w_0.0/neg'
+        batch_size = 50 # 기존 코드의 defulat 값
+        k = 3 # 기존 코드의 defulat 값
+        num_samples = 2600 # real, fake에서 feature를 추출할 이미지의 개수
+        fname_precalc = ''
+
+        ipr = IPR(batch_size, k, num_samples)
+        with torch.no_grad():
+            # real
+            ipr.compute_manifold_ref(PATH_REAL) # manifold_ref값을 구해 self.manifold_ref에 저장
+            if len(fname_precalc) > 0:
+                ipr.save_ref(fname_precalc)
+                print('path_fake (%s) is ignored for precalc' % PATH_FAKE)
+                exit()
+
+            # fake
+            precision, recall = ipr.precision_and_recall(PATH_FAKE)
+
+        print('precision:', precision)
+        print('recall:', recall)        
+
 
 if __name__ == '__main__':
     main()
