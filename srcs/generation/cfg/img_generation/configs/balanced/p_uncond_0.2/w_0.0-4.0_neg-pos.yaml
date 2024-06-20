@@ -1,6 +1,6 @@
 paths:
-  model_path: "/data/results/generation/exps/cfg_exps/balanced/t500/p_uncond_0.2/models/69_fianl_ckpt.pth"
-  sampling_path: "/data/results/generation/sampling/cfg/balanced/sampling_imgs/ddim/epoch70/p_uncond_0.2/w_0.0"
+  model_path: "/data/results/generation/exps/cfg_exps/balanced/t500/p_uncond_0.2/models/34_fianl_ckpt.pth"
+  sampling_path: "/data/results/generation/sampling/cfg/balanced/sampling_imgs/ddim/epoch35/p_uncond_0.2/w_4.0"
 
 information:
   img_size: 64
@@ -25,7 +25,7 @@ generation:
 cfg_params:
   sampling_class_num: 0
   class_num: 2
-  w: 0.0
+  w: 4.0
 
 log:
   verbose: "info" # "Verbose level: info | debug | warning | critical",

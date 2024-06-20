@@ -1,6 +1,6 @@
 paths:
-  model_path: "/data/results/generation/exps/cfg_exps/t500/models/37_fianl_ckpt.pth"
-  sampling_path: "/data/results/generation/sampling/cfg/sampling_imgs/ddim/epoch_35/p_uncond_0.2/w_0.0"
+  model_path: "/data/results/generation/exps/cfg_exps/imbalanced/t500/models/69_fianl_ckpt.pth"
+  sampling_path: "/data/results/generation/sampling/cfg/imbalanced/sampling_imgs/ddim/epoch_70/p_uncond_0.2/w_0.0"
 
 information:
   img_size: 64
