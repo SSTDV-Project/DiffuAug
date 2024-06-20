@@ -20,8 +20,8 @@ def main():
             )
         
     elif OPTION == "PRECISION_RECALL":
-        PATH_REAL = r'/data/duke_data/size_64/split_datalabel/neg'
-        PATH_FAKE = r'/data/results/generation/sampling/cfg/sampling_imgs/ddim/p_uncond_0.2/w_0.0/neg'
+        PATH_REAL = r'/data/duke_data/size_64/split_datalabel/pos'
+        PATH_FAKE = r'/data/results/generation/sampling/cfg/sampling_imgs/ddim/p_uncond_0.2/w_0.0/pos'
         batch_size = 50 # 기존 코드의 defulat 값
         k = 3 # 기존 코드의 defulat 값
         num_samples = 2600 # real, fake에서 feature를 추출할 이미지의 개수

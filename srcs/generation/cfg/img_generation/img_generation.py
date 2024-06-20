@@ -120,6 +120,11 @@ def generate_cond_ddim_img(cfg, model_path):
     sampling_path = os.path.join(sampling_root_path, clas_name)
     Path(sampling_path).mkdir(exist_ok=True)
     
+    # 샘플링 파라미터 설정
+    w = cfg.cfg_params.w
+    
+    print("w: ", w)
+    
     for i in range(total_iteration_num):    
         generated_images = gaussian_diffusion.ddim_sample(
             model=model, 
@@ -128,7 +133,7 @@ def generate_cond_ddim_img(cfg, model_path):
             channels=1,
             ddim_timesteps=100,
             n_class=n_class,
-            w=cfg.cfg_params.w,
+            w=w,
             mode='select',
             ddim_discr_method='quad',
             ddim_eta=0.0,
