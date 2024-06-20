@@ -6,7 +6,7 @@ from PIL import Image
 
 
 class DukeDataset(Dataset):
-    def __init__(self, data_dir, transform, target_label=None, each_total=None):
+    def __init__(self, data_dir, transform, target_label=None, each_total=None, is_eval=False):
         """
         Args:_
             target_label (str, optional): 'pos' or 'neg'. 만약 all이라면 모든 레이블의 데이터를 결합.
@@ -17,6 +17,7 @@ class DukeDataset(Dataset):
         self.transform = transform if transform is not None else None
         self.imgs = list()
         self.target_label = target_label
+        self.is_eval = is_eval
         
         if target_label == "all":
             self.each_total = each_total
@@ -41,11 +42,7 @@ class DukeDataset(Dataset):
                 for fname in img_files:
                     file_path = os.path.join(case_dir, fname)
                     imgs.append((file_path, target))
-                
-                # for fname in os.listdir(case_dir):
-                #     if '.png' in fname:
-                #         file_path = os.path.join(case_dir, fname)
-                #         imgs.append((file_path, target))
+
         else:
             imgs = list()
             target_label_num = 1 if self.target_label == 'pos' else 0
@@ -57,7 +54,8 @@ class DukeDataset(Dataset):
                 if '.png' in fname:
                     file_path = os.path.join(case_dir, fname)
                     imgs.append((file_path, target_label_num))
-                    
+        
+        print("Total usage images: ", len(imgs))        
         self.imgs = imgs
     
     def __getitem__(self, index):
@@ -65,7 +63,11 @@ class DukeDataset(Dataset):
         LABEL_POS = 1
         
         img_path = os.path.join(self.data_dir, self.imgs[index][FILE_PATH_POS])
-        img_arr = Image.open(img_path)
+        
+        if self.is_eval:
+            img_arr = Image.open(img_path).convert('RGB')
+        else:
+            img_arr = Image.open(img_path)
         
         if self.transform is not None:
             data = self.transform(img_arr)

@@ -6,12 +6,12 @@ from DiffuAug.srcs import utility
 
 
 def main():
-    OPTION = "PRECISION_RECALL"
+    OPTION = "FID"
     utility.set_seed()
     
     if OPTION == "FID":
         DUKE_DATA_PATH = r"/data/duke_data/size_64/split_datalabel"
-        FAKE_DATA_PATH = r"/data/results/generation/sampling/cfg/imbalanced/sampling_imgs/ddim/epoch_70/p_uncond_0.2/w_0.0"
+        FAKE_DATA_PATH = r"/data/results/generation/sampling/cfg/imbalanced/sampling_imgs/ddim/epoch_70/p_uncond_0.2/w_4.0"
         device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
         # FID 계산

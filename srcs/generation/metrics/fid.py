@@ -81,11 +81,15 @@ def compute_fid(device, original_data_path, generated_data_path):
         data_dir=original_data_path, 
         transform=img_transform,
         target_label="all",
+        each_total=2600,
+        is_eval=True
         )
     dataset_fake = DukeDataset(
         data_dir=generated_data_path,
         transform=img_transform,
         target_label="all",
+        each_total=2600,
+        is_eval=True
         )
     
     # Dataloader 선언
@@ -106,13 +110,13 @@ def compute_fid(device, original_data_path, generated_data_path):
 
     # Start FID Calculation
     for (imgs_real_batch, label) in tqdm(dl_real):     
-        imgs_real_batch = imgs_real_batch.repeat(1, 3, 1, 1)
+        # imgs_real_batch = imgs_real_batch.repeat(1, 3, 1, 1)
         imgs_real_batch = imgs_real_batch.to(device)
         
         fid.update(imgs_real_batch, real=True)
 
     for (imgs_fake_batch, label) in tqdm(dl_fake):     
-        imgs_fake_batch = imgs_fake_batch.repeat(1, 3, 1, 1)
+        # imgs_fake_batch = imgs_fake_batch.repeat(1, 3, 1, 1)
         imgs_fake_batch = imgs_fake_batch.to(device)
         
         fid.update(imgs_fake_batch, real=False)
