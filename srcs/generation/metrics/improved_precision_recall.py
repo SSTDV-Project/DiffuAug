@@ -1,6 +1,8 @@
 # ref: https://github.com/youngjung/improved-precision-and-recall-metric-pytorch
 
 import os
+import random
+
 from functools import partial
 from collections import namedtuple
 from glob import glob
@@ -265,12 +267,20 @@ def realism(manifold_real, feat_subject):
     return max_realism
 
 
+# -- 새로 추가 --
 class ImageFolder(Dataset):
-    def __init__(self, root, transform=None):
-        # self.fnames = list(map(lambda x: os.path.join(root, x), os.listdir(root)))
-        self.fnames = glob(os.path.join(root, '**', '*.jpg'), recursive=True) + \
-            glob(os.path.join(root, '**', '*.png'), recursive=True)
+    def __init__(self, root, transform=None, num_samples=-1):
+        neg_fnames = glob(os.path.join(root, '**', 'neg', '*.jpg'), recursive=True) + \
+                     glob(os.path.join(root, '**', 'neg', '*.png'), recursive=True)
+        pos_fnames = glob(os.path.join(root, '**', 'pos', '*.jpg'), recursive=True) + \
+                     glob(os.path.join(root, '**', 'pos', '*.png'), recursive=True)
 
+        if num_samples > 0:
+            neg_fnames = random.sample(neg_fnames, min(num_samples, len(neg_fnames)))
+            pos_fnames = random.sample(pos_fnames, min(num_samples, len(pos_fnames)))
+
+        self.fnames = neg_fnames + pos_fnames
+        random.shuffle(self.fnames)  # neg와 pos 이미지를 섞음
         self.transform = transform
 
     def __getitem__(self, index):
@@ -311,18 +321,77 @@ def get_custom_loader(image_dir_or_fnames, image_size=224, batch_size=50, num_wo
     if isinstance(image_dir_or_fnames, list):
         dataset = FileNames(image_dir_or_fnames, transform)
     elif isinstance(image_dir_or_fnames, str):
-        dataset = ImageFolder(image_dir_or_fnames, transform=transform)
+        dataset = ImageFolder(image_dir_or_fnames, transform=transform, num_samples=num_samples)
     else:
         raise TypeError
 
-    if num_samples > 0:
-        dataset.fnames = dataset.fnames[:num_samples]
     data_loader = DataLoader(dataset=dataset,
                              batch_size=batch_size,
-                             shuffle=False,
+                             shuffle=True,
                              num_workers=num_workers,
                              pin_memory=True)
     return data_loader
+# -- 새로 추가 --
+
+
+# class ImageFolder(Dataset):
+#     def __init__(self, root, transform=None):
+#         # self.fnames = list(map(lambda x: os.path.join(root, x), os.listdir(root)))
+#         self.fnames = glob(os.path.join(root, '**', '*.jpg'), recursive=True) + \
+#             glob(os.path.join(root, '**', '*.png'), recursive=True)
+
+#         self.transform = transform
+
+#     def __getitem__(self, index):
+#         image_path = self.fnames[index]
+#         image = Image.open(image_path).convert('RGB')
+#         if self.transform is not None:
+#             image = self.transform(image)
+#         return image
+
+#     def __len__(self):
+#         return len(self.fnames)
+
+
+# class FileNames(Dataset):
+#     def __init__(self, fnames, transform=None):
+#         self.fnames = fnames
+#         self.transform = transform
+
+#     def __getitem__(self, index):
+#         image_path = self.fnames[index]
+#         image = Image.open(image_path).convert('RGB')
+#         if self.transform is not None:
+#             image = self.transform(image)
+#         return image
+
+#     def __len__(self):
+#         return len(self.fnames)
+
+
+# def get_custom_loader(image_dir_or_fnames, image_size=224, batch_size=50, num_workers=4, num_samples=-1):
+#     transform = []
+#     transform.append(transforms.Resize([image_size, image_size]))
+#     transform.append(transforms.ToTensor())
+#     transform.append(transforms.Normalize(mean=[0.485, 0.456, 0.406],
+#                                           std=[0.229, 0.224, 0.225]))
+#     transform = transforms.Compose(transform)
+
+#     if isinstance(image_dir_or_fnames, list):
+#         dataset = FileNames(image_dir_or_fnames, transform)
+#     elif isinstance(image_dir_or_fnames, str):
+#         dataset = ImageFolder(image_dir_or_fnames, transform=transform)
+#     else:
+#         raise TypeError
+
+#     if num_samples > 0:
+#         dataset.fnames = dataset.fnames[:num_samples]
+#     data_loader = DataLoader(dataset=dataset,
+#                              batch_size=batch_size,
+#                              shuffle=False,
+#                              num_workers=num_workers,
+#                              pin_memory=True)
+#     return data_loader
 
 
 def toy():

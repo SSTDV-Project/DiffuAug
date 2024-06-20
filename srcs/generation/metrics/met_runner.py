@@ -2,10 +2,12 @@ import torch
 
 from DiffuAug.srcs.generation.metrics.fid import compute_fid
 from DiffuAug.srcs.generation.metrics.improved_precision_recall import IPR
+from DiffuAug.srcs import utility
 
 
 def main():
-    OPTION = "FID"
+    OPTION = "PRECISION_RECALL"
+    utility.set_seed()
     
     if OPTION == "FID":
         DUKE_DATA_PATH = r"/data/duke_data/size_64/split_datalabel"
@@ -21,7 +23,7 @@ def main():
         
     elif OPTION == "PRECISION_RECALL":
         PATH_REAL = r'/data/duke_data/size_64/split_datalabel'
-        PATH_FAKE = r'/data/results/generation/sampling/cfg/imbalanced/sampling_imgs/ddim/epoch_70/p_uncond_0.2/w_4.0'
+        PATH_FAKE = r'/data/results/generation/sampling/cfg/imbalanced/sampling_imgs/ddim/epoch_70/p_uncond_0.2/w_0.0'
         batch_size = 50 # 기존 코드의 defulat 값
         k = 3 # 기존 코드의 defulat 값
         num_samples = 2600 # real, fake에서 feature를 추출할 이미지의 개수
