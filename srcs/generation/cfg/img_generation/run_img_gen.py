@@ -3,7 +3,7 @@ from DiffuAug.srcs import utility
 
 
 def main():
-    GEN_SETTING_YAML_PATH = r"/workspace/DiffuAug/srcs/generation/cfg/img_generation/configs/p_uncond_0.2/w_0.0-2.0_neg-pos.yaml"
+    GEN_SETTING_YAML_PATH = r"DiffuAug/srcs/generation/cfg/img_generation/configs/imbalanced/p_uncond_0.2/w_0.0-4.0_neg-pos.yaml"
     OPTION = 'ddim_class'
     
     utility.set_seed()
