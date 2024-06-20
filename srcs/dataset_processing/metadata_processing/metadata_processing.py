@@ -117,6 +117,38 @@ def split_train_test_val_csv(meta_csv_path, csv_output_root_path):
     print("Metadata is splitted and saved at", csv_output_root_path)
     
 
+def origin_plus_augdata(origin_train_dataset_path, aug_file_parent_path, output_csv_path):
+    # 1. 기존의 train_dataset.csv 파일을 불러오기
+    train_df = pd.read_csv(origin_train_dataset_path)
+    
+    # 2. neg 및 pos 디렉토리에서 각각 랜덤으로 50개의 이미지 경로 추출
+    neg_dir = os.path.join(aug_file_parent_path, 'neg')
+    pos_dir = os.path.join(aug_file_parent_path, 'pos')
+
+    neg_images = random.sample([os.path.join(neg_dir, img) for img in os.listdir(neg_dir)], 50)
+    pos_images = random.sample([os.path.join(pos_dir, img) for img in os.listdir(pos_dir)], 50)
+    
+    # 3. 추출한 이미지 경로와 레이블을 기존 데이터에 추가
+    new_data = []
+    for img in neg_images:
+        new_data.append({'data_path': img, 'label': 'neg'})
+
+    for img in pos_images:
+        new_data.append({'data_path': img, 'label': 'pos'})
+
+    # 새로운 데이터를 DataFrame으로 변환
+    new_df = pd.DataFrame(new_data)
+    
+    # 기존 데이터와 결합
+    augmented_df = pd.concat([train_df, new_df], ignore_index=True)
+
+    # 5. 새로운 aug_train_dataset.csv로 저장
+    augmented_csv_path = os.path.join(output_csv_path, 'aug_train_dataset.csv')
+    augmented_df.to_csv(augmented_csv_path, index=False)
+
+    print(f"새로운 CSV 파일이 저장되었습니다: {augmented_csv_path}")
+    
+
 def test_leak_data(train_data_path, val_data_path, test_data_path):
     """
     Test data에 대한 leak 여부를 확인하는 함수

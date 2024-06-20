@@ -1,9 +1,9 @@
 import os
 
-from DiffuAug.srcs.dataset_processing.metadata_processing.metadata_processing import (make_metadata, split_train_test_val_csv, test_leak_data)
+from DiffuAug.srcs.dataset_processing.metadata_processing.metadata_processing import *
 
-def main():    
-    OPTION="split_data"
+def main():
+    OPTION="origin_plus_augdata"
     
     if OPTION == "make_metadata":
         data_dir = r"/data/duke_data/size_64/split_datalabel"
@@ -25,7 +25,18 @@ def main():
             csv_output_root_path=csv_output_root_path
         )
         
-    elif OPTION == "leak_data":
+    elif OPTION == "origin_plus_augdata":
+        origin_train_csv_path = r"/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1_balanced_200/train_dataset.csv"
+        aug_file_parent_path = r"/data/results/generation/sampling/cfg/imbalanced/sampling_imgs/ddim/epoch_70/p_uncond_0.2/w_4.0"
+        output_csv_path = r"/workspace/DiffuAug/metadata/classification/aug_csv/0.8_0.1_0.1_balanced_200+50"
+        
+        origin_plus_augdata(
+            origin_train_dataset_path=origin_train_csv_path,
+            aug_file_parent_path=aug_file_parent_path,
+            output_csv_path=output_csv_path
+        )
+        
+    elif OPTION == "test_leak_data":
         splitted_csv_root_path = r"/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1"
         train_data_path = os.path.join(splitted_csv_root_path, 'train_dataset.csv')
         val_data_path = os.path.join(splitted_csv_root_path, 'val_dataset.csv')
