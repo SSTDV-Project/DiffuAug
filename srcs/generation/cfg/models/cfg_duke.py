@@ -592,7 +592,12 @@ def get_duke_dataloader(png_dir, train_batchsize=32, img_size=256, num_workers=8
         ]
     )
     
-    dataset = DukeDataset(png_dir, img_transform)
+    dataset = DukeDataset(
+        data_dir=png_dir, 
+        transform=img_transform,
+        target_label="all",
+        each_total=2600
+        )
     print(len(dataset))
     
     train_lodaer = DataLoader(dataset, batch_size=train_batchsize, shuffle=True, num_workers=num_workers)

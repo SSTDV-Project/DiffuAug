@@ -5,7 +5,7 @@ import torch.nn as nn
 from DiffuAug.srcs.generation.cfg.models.cfg_duke import train, UnetModel, generate_img
 from DiffuAug.srcs import utility
 
-YAML_PATH = r"/workspace/DiffuAug/exp_settings/configs/cfg/t500/cfg_64x64.yaml"
+YAML_PATH = r"DiffuAug/exp_settings/configs/cfg/t500/balanced/p_uncond_0.2/cfg_64x64._bal.yaml"
 
 def vis_model(cfg):
     class ModelWrapper(nn.Module):

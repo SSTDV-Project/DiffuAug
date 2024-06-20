@@ -1,0 +1,34 @@
+paths:
+  exp_path: "/data/results/generation/exps/cfg_exps/balanced/t500/p_uncond_0.2"
+  log_dir: "logs"
+  model_dir: "models"
+  sampling_path: "/data/results/generation/sampling/sampling_tests"
+  data_dir: "/data/duke_data/size_64/split_datalabel"
+  
+
+params:
+  task: train
+  objective: 64x64 image generation
+  img_size: 64
+  learning_rate: 0.0001
+  timesteps: 500
+  channels: 1
+  init_channels: 96
+  batch_size: 16
+  gpu_num: 2
+  base_num_workers: 4
+  epochs: 70
+  save_step_freq: 0
+  sample_step_freq: 0
+  sample_epoch_freq: 1
+  dim_mults: [1, 2, 2]
+  
+
+cfg_params:
+  class_num: 2
+  p_uncond: 0.2
+  
+  # weight_decay: 0.9
+
+log:
+  verbose: "info" # "Verbose level: info | debug | warning | critical",
