@@ -79,11 +79,13 @@ def compute_fid(device, original_data_path, generated_data_path):
     # Dataset 선언
     dataset_real = DukeDataset(
         data_dir=original_data_path, 
-        transform=img_transform
+        transform=img_transform,
+        target_label="all",
         )
     dataset_fake = DukeDataset(
         data_dir=generated_data_path,
         transform=img_transform,
+        target_label="all",
         )
     
     # Dataloader 선언
