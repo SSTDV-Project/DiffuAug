@@ -1,11 +1,12 @@
 paths:
-  model_path: "/data/results/generation/exps/cfg_exps/t500/models/69_fianl_ckpt.pth"
-  sampling_path: "/data/results/generation/sampling/cfg/sampling_imgs/ddim/p_uncond_0.2/w_0.0"
+  model_path: "/data/results/generation/exps/cfg_exps/t500/models/37_fianl_ckpt.pth"
+  sampling_path: "/data/results/generation/sampling/cfg/sampling_imgs/ddim/epoch_35/p_uncond_0.2/w_0.0"
 
 information:
   img_size: 64
   timesteps: 500
   p_uncond: 0.2
+  epoch: 35 # 0~35
 
 params:
   task: train
