@@ -3,7 +3,7 @@ paths:
   csv_root_path: "/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1_balanced_200"
 
   # exp_result_path
-  exp_path: "/data/results/classification/exps/no_aug/balanced"
+  exp_path: "/data/results/classification/exps/no_aug/balanced/total_200"
   
 params:
   task: train

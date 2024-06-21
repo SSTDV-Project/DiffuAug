@@ -307,10 +307,12 @@ def train(cfg):
     val_csv_path = os.path.join(csv_root_path, "val_dataset.csv")
     test_csv_path = os.path.join(csv_root_path, "test_dataset.csv")
 
-    if cfg.paths.train_csv_path is None:
-        train_csv_path = os.path.join(cfg.paths.train_csv_path, "train_dataset.csv")
-        val_csv_path = os.path.join(cfg.paths.val_csv_path, "val_dataset.csv")
-        test_csv_path = os.path.join(cfg.paths.test_csv_path, "test_dataset.csv")
+    try:
+       getattr(cfg.paths, "train_csv_path")
+    except AttributeError:
+        train_csv_path = os.path.join(cfg.paths.csv_root_path, "train_dataset.csv")
+        val_csv_path = os.path.join(cfg.paths.csv_root_path, "val_dataset.csv")
+        test_csv_path = os.path.join(cfg.paths.csv_root_path, "test_dataset.csv")
 
     # 결과 저장 디렉토리 생성
     print("Result save root path: ", cfg.paths.exp_path)
@@ -393,10 +395,10 @@ def train(cfg):
 
         # best 모델 저장
         if val_auc > best_validation_auc:
-            if os.path.exists(cfg.paths.model_save_path):
-                os.makedirs(cfg.paths.model_save_path, exist_ok=True)                
+            if os.path.exists(model_save_root_path):
+                os.makedirs(model_save_root_path, exist_ok=True)                
             best_validation_auc = val_auc
-            best_model_save_path = f"{cfg.paths.model_save_path}/model-{epoch}.pth"
+            best_model_save_path = f"{model_save_root_path}/model-{epoch}.pth"
                     
             utility.save_model(model, model.state_dict(), best_model_save_path)
             print('--------------------------------')
