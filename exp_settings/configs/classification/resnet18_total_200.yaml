@@ -3,9 +3,7 @@ paths:
   csv_root_path: "/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1_balanced_200"
 
   # exp_result_path
-  model_save_path: "/data/results/classification/model_weights"
-  test_predict_result_save_path: "/data/results/classification/predicted_csv/resnet18/balanced_200"
-
+  exp_path: "/data/results/classification/exps/no_aug/balanced"
   
 params:
   task: train

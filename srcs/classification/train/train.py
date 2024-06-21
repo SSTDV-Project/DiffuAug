@@ -175,7 +175,16 @@ def valid_one_epoch(model, val_loader, cur_epoch, device):
     return acc, auc
 
 
-def test_one_epoch(cfg, model, test_loader, epoch, device, is_save_csv=False, best_auc=0.0):
+def test_one_epoch(
+    cfg,
+    model,
+    test_loader,
+    epoch,
+    device,
+    test_predict_result_save_root_path,
+    is_save_csv=False,
+    best_auc=0.0,
+    ):
     model.eval()
     
     test_correct = 0
@@ -237,7 +246,7 @@ def test_one_epoch(cfg, model, test_loader, epoch, device, is_save_csv=False, be
             predicted=epoch_predicteds,
             targets=epoch_targets, 
             current_epoch=epoch,
-            save_path=cfg.paths.test_predict_result_save_path
+            save_path=test_predict_result_save_root_path
             )
         
     print(f"Test ACC: {acc:.3f}, correct: {test_correct}, total: {test_total}")
@@ -302,10 +311,15 @@ def train(cfg):
         train_csv_path = os.path.join(cfg.paths.train_csv_path, "train_dataset.csv")
         val_csv_path = os.path.join(cfg.paths.val_csv_path, "val_dataset.csv")
         test_csv_path = os.path.join(cfg.paths.test_csv_path, "test_dataset.csv")
-    
+
     # 결과 저장 디렉토리 생성
-    print("Result save path: ", cfg.paths.test_predict_result_save_path)
-    pathlib.Path(cfg.paths.test_predict_result_save_path).mkdir(parents=True, exist_ok=True)
+    print("Result save root path: ", cfg.paths.exp_path)
+    model_save_root_path = os.path.join(cfg.paths.exp_path, "model_weights")
+    test_predict_result_save_root_path = os.path.join(cfg.paths.exp_path, "predict_result")
+    
+    pathlib.Path(model_save_root_path).mkdir(exist_ok=True)
+    pathlib.Path(test_predict_result_save_root_path).mkdir(exist_ok=True)
+
     
     # 데이터 셋 선언
     train_dataset = DukeDatasetClassification(
@@ -396,6 +410,7 @@ def train(cfg):
             test_loader=test_loader,
             epoch=epoch,
             device=device,
+            test_predict_result_save_root_path=test_predict_result_save_root_path,
             is_save_csv=True,
             best_auc=best_test_auc
         )
