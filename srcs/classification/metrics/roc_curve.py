@@ -24,6 +24,15 @@ def compute_optimal_threshold(y_true, y_scores):
     return optimal_threshold, sensitivity, specificity, roc_auc
 
 
+def compute_auc_with_slices(prediction_csv_path):
+    y_true, y_scores = get_true_and_scores_with_slices(prediction_csv_path)
+    
+    # AUC, Sensitivity, Specificity 계산
+    _, sensitivity, specificity, roc_auc = compute_optimal_threshold(y_true, y_scores)
+    print(f"AUC: {roc_auc:.2f}")
+    print(f"Sensitivity: {sensitivity:.2f}, Specificity: {specificity:.2f}\n")
+
+
 def draw_roc_curve(pred_result_csv_path, save_curve_png_path):
     """
     Test set에 대한 예측 결과를 읽어서 ROC Curve를 그립니다.
@@ -33,18 +42,14 @@ def draw_roc_curve(pred_result_csv_path, save_curve_png_path):
     save_curve_png_path = os.path.join(save_curve_png_path, "roc_curve.png")
     
     # CSV에서 True와 예측 Score 추출
-    y_true, y_scores = get_true_and_scores(pred_result_csv_path)
+    y_true, y_scores = get_true_and_scores_with_slices(pred_result_csv_path)
     
     # ROC Curve 그림
     fpr, tpr, thresholds = roc_curve(y_true, y_scores)
     roc_auc = auc(fpr, tpr)
     
-    _, sensitivity, specificity, _ = compute_optimal_threshold(y_true, y_scores)
-    print(f"AUC: {roc_auc:.3f}")
-    print(f"Sensitivity: {sensitivity:.3f}, Specificity: {specificity:.3f}")
-    
     # 각 fold의 ROC Curve 추가
-    plt.plot(fpr, tpr, lw=2, label=f'ROC curve (area = {roc_auc:.3f})')
+    plt.plot(fpr, tpr, lw=2, label=f'ROC curve (area = {roc_auc:.2f})')
     
     # ROC Curve 그래프 설정
     plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
@@ -70,10 +75,10 @@ def compute_acc_with_slices(prediction_csv_path):
     
     correct_slice = df[df['Predicted'] == df['Targets']]
     acc = 100.0 * len(correct_slice) / len(df)
-    print(f"Accuracy: {acc:.3f}%\n")
+    print(f"Accuracy: {acc:.2f}%\n")
 
 
-def get_true_and_scores(pred_result_csv_path):
+def get_true_and_scores_with_slices(pred_result_csv_path):
     """
     CSV에 작성된 예측 결과를 읽어서 실제 label값 True와 예측 Score(확률)를 반환합니다.
     """

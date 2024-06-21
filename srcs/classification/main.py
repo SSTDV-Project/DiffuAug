@@ -3,7 +3,7 @@ from DiffuAug.srcs.classification.metrics.roc_curve import *
 from DiffuAug.srcs import utility
 
 def main():
-    YAML_PATH = r"/workspace/DiffuAug/exp_settings/configs/classification/resnet18_total_200.yaml"
+    YAML_PATH = r"/workspace/DiffuAug/exp_settings/configs/classification/aug_test_setttings/resnet18_total_300_aug.yaml"
     OPTION = "test"
     
     utility.set_seed()
@@ -14,10 +14,11 @@ def main():
         train(cfg)
         
     elif OPTION == "test":
-        pred_result_csv_path = r"/data/results/classification/predicted_csv/resnet18/balanced_200/predicted_4.csv"
+        pred_result_csv_path = r"/data/results/classification/predicted_csv/resnet18/aug_test/balacned_300/predicted_30.csv"
         save_curve_png_path = r"/data/results/classification/plot"
     
         draw_roc_curve(pred_result_csv_path, save_curve_png_path)
+        compute_auc_with_slices(pred_result_csv_path)
         compute_acc_with_slices(pred_result_csv_path)
 
 
