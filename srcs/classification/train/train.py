@@ -297,6 +297,11 @@ def train(cfg):
     train_csv_path = os.path.join(csv_root_path, "train_dataset.csv")
     val_csv_path = os.path.join(csv_root_path, "val_dataset.csv")
     test_csv_path = os.path.join(csv_root_path, "test_dataset.csv")
+
+    if cfg.paths.train_csv_path is None:
+        train_csv_path = os.path.join(cfg.paths.train_csv_path, "train_dataset.csv")
+        val_csv_path = os.path.join(cfg.paths.val_csv_path, "val_dataset.csv")
+        test_csv_path = os.path.join(cfg.paths.test_csv_path, "test_dataset.csv")
     
     # 결과 저장 디렉토리 생성
     print("Result save path: ", cfg.paths.test_predict_result_save_path)

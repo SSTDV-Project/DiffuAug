@@ -1,6 +1,9 @@
 paths:
   # Train, Val, Test CSV
   csv_root_path: "/workspace/DiffuAug/metadata/classification/aug_csv/0.8_0.1_0.1_balanced_200+50+50"
+  train_csv_path: "/workspace/DiffuAug/metadata/classification/aug_csv/0.8_0.1_0.1_balanced_200+50+50/train_dataset.csv"
+  val_csv_path: "/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1_balanced_200/val_dataset.csv"
+  test_csv_path: "/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1_balanced_200/test_dataset.csv"
 
   # exp_result_path
   model_save_path: "/data/results/classification/model_weights/aug_models"
