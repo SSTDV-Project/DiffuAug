@@ -1,4 +1,5 @@
 import os
+import pathlib
 
 import numpy as np
 import pandas as pd
@@ -7,23 +8,25 @@ import torch
 import torch.nn as nn
 import torchvision.models as models
 from torchvision.models.resnet import ResNet18_Weights
+from torchvision.models import resnet18
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 
 from sklearn.metrics import roc_auc_score
 
-from DiffusionForBreastMRI.srcs.classification.datasets.duke_dataset_for_classification import DukeDatasetClassification
-from DiffusionForBreastMRI import utility
-from DiffusionForBreastMRI.srcs.classification.models.simple_cnn import SimpleCNN
+from DiffuAug.srcs.datasets.duke_for_classification import DukeDatasetClassification
+from DiffuAug.srcs import utility
+from DiffuAug.srcs.classification.models.simple_cnn import SimpleCNN
+
 
 def load_model(device, mode=None):
     # Renset
     if mode=="resnet18":
         model = models.resnet18(pretrained=False)
-        model.conv1 = torch.nn.Conv2d(1, 64, kernel_size=(7, 7))
+        model.conv1 = nn.Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
         num_ftrs = model.fc.in_features # 마지막 계층의 입력 특징의 수를 가져옴
-        model.fc = nn.Linear(num_ftrs, 1)  # 마지막 계층을 새로운 클래스 수에 맞게 교체 (여기서는 10개 클래스)
-
+        model.fc = nn.Linear(num_ftrs, 1) 
+        
         model = model.to(device=device)    
     # Alexnet
     elif mode=="alexnet":
@@ -39,15 +42,14 @@ def load_model(device, mode=None):
         model = model.to(device=device)
     
     return model
-    
-    
+
 
 def train_one_epoch(cfg, model, optimizer, loss_func, train_loader, batch_size, epoch, device):
     """ 
     모델을 한 epoch 동안 훈련합니다.
 
     Args:
-        net: 학습시킬 모델
+        model: 학습시킬 모델
         optimizer: 사용할 optimizer
         loss_func: 사용할 loss 함수
         trainloader: 학습 데이터를 담고 있는 DataLoader
@@ -59,18 +61,17 @@ def train_one_epoch(cfg, model, optimizer, loss_func, train_loader, batch_size, 
         net: 학습된 모델
         epoch_loss: epoch의 평균 loss
     """
-    print(f'Starting training: epoch {epoch}')
+    print(f'Epoch: {epoch}, Starting training')
     model.train()
     
     y_scores_list = list()
     y_true_list = list()
+    train_total = 0
+    train_correct = 0
     epoch_loss = 0.0
-    
-    # Loss 클래스 이름 가져오기
-    loss_name = loss_func.__class__.__name__
 
     # 훈련 데이터에 대해 DataLoader를 반복합니다.
-    for idx, data in enumerate(train_loader, 0):
+    for idx, data in enumerate(train_loader):
         # 입력을 가져오기
         inputs, targets, _ = data
         inputs = inputs.to(device=device, dtype=torch.float32)
@@ -79,11 +80,7 @@ def train_one_epoch(cfg, model, optimizer, loss_func, train_loader, batch_size, 
         # forward pass 수행
         logit = model(inputs)        
         prob = torch.sigmoid(logit)
-        
-        if loss_name == "BCELoss":
-            loss = loss_func(prob, targets)
-        elif loss_name == "BinaryFocalLoss":
-            loss = loss_func(logit, targets)
+        loss = loss_func(prob, targets)
 
         # 값이 0인 텐서를 만든 후, 임계값을 기준으로 값을 1로 설정
         pivot = prob > cfg.params.threshold
@@ -100,11 +97,13 @@ def train_one_epoch(cfg, model, optimizer, loss_func, train_loader, batch_size, 
         # loss값을 출력
         epoch_loss += loss.item()
         
+        # ACC 계산을 위해 값 저장
+        train_total += predicted.size(0)
+        train_correct += (predicted==targets).sum().item()
+        
         # ROC 계산을 위해 값 저장)
         y_scores_list.extend(prob.detach().cpu().numpy())
-        y_true_list.extend(targets.cpu().numpy())    
-        # y_scores_list.extend(predicted.cpu().numpy())
-        # y_true_list.extend(targets.cpu().numpy())        
+        y_true_list.extend(targets.cpu().numpy())
         
         if idx % batch_size == batch_size-1:
             batch_loss = loss.item()
@@ -114,27 +113,32 @@ def train_one_epoch(cfg, model, optimizer, loss_func, train_loader, batch_size, 
     # 모든 배치에 대한 예측 확률과 실제 레이블을 하나의 배열로 합치기
     y_scores = np.array(y_scores_list)
     y_true = np.array(y_true_list)
+
+    # ACC, AUC 계산
+    acc = 100.0 * (train_correct / train_total)
+    auc = roc_auc_score(y_true, y_scores)
     
-    # AUC 및 Epoch 평균 loss 계산
-    auc_scroe = roc_auc_score(y_true, y_scores)
+    # 학습 과정 중 epoch 평균 loss 계산
     epoch_loss = round(epoch_loss / len(train_loader), 3)
     
-    print(f"AUC: {auc_scroe:.3f}")
-    print(f"epoch mean loss: {epoch_loss} \n")
+    print(f"Training ACC: {acc:.3f}, correct: {train_correct}, total: {train_total}")
+    print(f"Training AUC: {auc:.3f}")
+    print(f"Training epoch mean loss: {epoch_loss} \n")
     
     return model, epoch_loss
 
 
-def valid_one_epoch(model, val_loader, epoch, device):
+def valid_one_epoch(model, val_loader, cur_epoch, device):
     model.eval()
-    correct, total = 0, 0
     
     # ROC 계산을 위한 리스트 초기화
     y_scores_list = list()
     y_true_list = list()
-    
+    validation_total = 0
+    validation_correct = 0
+
     # 테스트 데이터를 반복하며 예측값을 생성한다
-    for batch_idx, data in enumerate(val_loader, 0):
+    for batch_idx, data in enumerate(val_loader):
         # 입력을 가져오기
         inputs, targets, _ = data
         inputs = inputs.to(device=device, dtype=torch.float32)
@@ -151,28 +155,40 @@ def valid_one_epoch(model, val_loader, epoch, device):
         predicted[threshold] = 1.0
         
         # 정확도 계산
-        total += targets.size(0)
-        correct += (predicted == targets).sum().item()
+        validation_total += predicted.size(0)
+        validation_correct += (predicted == targets).sum().item()
         
         # ROC 계산을 위해 값 저장
         y_scores_list.extend(prob.detach().cpu().numpy())
-        y_true_list.extend(targets.cpu().numpy())        
-        # y_scores_list.extend(predicted.cpu().numpy())
-        # y_true_list.extend(targets.cpu().numpy())
+        y_true_list.extend(targets.cpu().numpy())
 
-    # accuracy 출력 
-    acc = 100.0 * (correct / total)
-    auc = roc_auc_score(y_true_list, y_scores_list)
+    y_scores = np.array(y_scores_list)
+    y_true = np.array(y_true_list)
+
+    # ACC, AUC 계산
+    acc = 100.0 * (validation_correct / validation_total)
+    auc = roc_auc_score(y_true, y_scores)
     
-    print(f"Valid epoch: {epoch}, correct: {correct}, total: {total}, ACC: {acc:.2f}, AUC: {auc:.2f}\n")
+    print(f"Validation ACC: {acc:.3f}, correct: {validation_correct}, total: {validation_total}")
+    print(f"Validation AUC: {auc:.3f}\n")
     
     return acc, auc
 
 
-def test_one_epoch(cfg, model, test_loader, epoch, device, is_save_csv=False):
-    print(f'Epoch: {epoch}, Starting testing')
+def test_one_epoch(
+    cfg,
+    model,
+    test_loader,
+    epoch,
+    device,
+    test_predict_result_save_root_path,
+    is_save_csv=False,
+    best_auc=0.0,
+    ):
     model.eval()
-    correct, total = 0, 0
+    
+    test_correct = 0
+    test_total = 0
     
     epoch_input_paths = list()
     epoch_logit = list()
@@ -202,8 +218,8 @@ def test_one_epoch(cfg, model, test_loader, epoch, device, is_save_csv=False):
         predicted[threshold] = 1.0
         
         # 정확도 계산
-        total += targets.size(0)
-        correct += (predicted == targets).sum().item()
+        test_total += targets.size(0)
+        test_correct += (predicted == targets).sum().item()
         
         # fold별 결과 저장
         epoch_input_paths.append(input_paths)
@@ -215,11 +231,14 @@ def test_one_epoch(cfg, model, test_loader, epoch, device, is_save_csv=False):
         # ROC 계산을 위해 값 저장
         y_scores_list.extend(prob.detach().cpu().numpy())
         y_true_list.extend(targets.cpu().numpy())
-        # y_scores_list.extend(predicted.cpu().numpy())
-        # y_true_list.extend(targets.cpu().numpy())
+    
+
+    # accuracy 출력 
+    acc = 100.0 * (test_correct / test_total)
+    auc = roc_auc_score(y_true_list, y_scores_list)
     
     # 에포크별 예측값에 대한 결과를 CSV로 저장합니다.
-    if is_save_csv:
+    if is_save_csv & (auc > best_auc):
         savecsv_prediction_results_for_epoch(
             input_paths=epoch_input_paths,
             logits=epoch_logit,
@@ -227,13 +246,11 @@ def test_one_epoch(cfg, model, test_loader, epoch, device, is_save_csv=False):
             predicted=epoch_predicteds,
             targets=epoch_targets, 
             current_epoch=epoch,
-            save_path=cfg.paths.test_predict_result_save_path
+            save_path=test_predict_result_save_root_path
             )
-
-    # accuracy 출력 
-    acc = 100.0 * (correct / total)
-    auc = roc_auc_score(y_true_list, y_scores_list)
-    print(f"Test epoch: {epoch}, correct: {correct}, total: {total}, ACC: {acc:.2f}, AUC: {auc:.2f}\n")
+        
+    print(f"Test ACC: {acc:.3f}, correct: {test_correct}, total: {test_total}")
+    print(f"Test AUC: {auc:.3f}\n")
     
     return acc, auc
 
@@ -282,46 +299,67 @@ def savecsv_prediction_results_for_epoch(
 
 def train(cfg):
     loss_and_auc_each_epoch = {}
-    best_auc = 0.0
+    best_validation_auc = 0.0
+    best_test_auc = 0.0
+    
+    csv_root_path = cfg.paths.csv_root_path
+    train_csv_path = os.path.join(csv_root_path, "train_dataset.csv")
+    val_csv_path = os.path.join(csv_root_path, "val_dataset.csv")
+    test_csv_path = os.path.join(csv_root_path, "test_dataset.csv")
+
+    try:
+       getattr(cfg.paths, "train_csv_path")
+    except AttributeError:
+        train_csv_path = os.path.join(cfg.paths.csv_root_path, "train_dataset.csv")
+        val_csv_path = os.path.join(cfg.paths.csv_root_path, "val_dataset.csv")
+        test_csv_path = os.path.join(cfg.paths.csv_root_path, "test_dataset.csv")
+
+    # 결과 저장 디렉토리 생성
+    print("Result save root path: ", cfg.paths.exp_path)
+    model_save_root_path = os.path.join(cfg.paths.exp_path, "model_weights")
+    test_predict_result_save_root_path = os.path.join(cfg.paths.exp_path, "predict_result")
+    
+    pathlib.Path(model_save_root_path).mkdir(exist_ok=True)
+    pathlib.Path(test_predict_result_save_root_path).mkdir(exist_ok=True)
+
     
     # 데이터 셋 선언
     train_dataset = DukeDatasetClassification(
-        csv_path=cfg.paths.train_csv_path,
+        csv_path=train_csv_path,
         transform=True
         )
-    print(f"Train dataset length: {len(train_dataset)}")
-    
     val_dataset = DukeDatasetClassification(
-        csv_path=cfg.paths.val_csv_path,
-        transform=True
+        csv_path=val_csv_path,
+        transform=False
         )
-    print(f"Val dataset length: {len(val_dataset)}")
-    
     test_dataset = DukeDatasetClassification(
-        csv_path=cfg.paths.test_csv_path,
-        transform=True
+        csv_path=test_csv_path,
+        transform=False
         )
+    
+    print(f"Train dataset length: {len(train_dataset)}")
+    print(f"Val dataset length: {len(val_dataset)}")
     print(f"test_dataset dataset length: {len(test_dataset)}")
     
     # 데이터 로더 선언
     train_loader = DataLoader(
-        dataset=train_dataset, 
-        batch_size=cfg.params.batch_size, 
-        shuffle=True, 
+        dataset=train_dataset,
+        batch_size=cfg.params.batch_size,
+        shuffle=True,
         num_workers=4
-        )
+    )
     val_loader = DataLoader(
-        dataset=val_dataset, 
-        batch_size=cfg.params.batch_size, 
-        shuffle=True, 
+        dataset=val_dataset,
+        batch_size=cfg.params.batch_size,
+        shuffle=False,
         num_workers=4
-        )
+    )
     test_loader = DataLoader(
-        dataset=test_dataset, 
-        batch_size=cfg.params.batch_size, 
-        shuffle=True, 
+        dataset=test_dataset,
+        batch_size=cfg.params.batch_size,
+        shuffle=False,
         num_workers=4
-        )
+    )
 
     # 모델 선언
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -332,10 +370,9 @@ def train(cfg):
     
     # loss 함수 선언
     loss_func = nn.BCELoss()
-
-    # 에포크 수만큼 훈련 루프를 실행합니다.
-    for epoch in range(0, cfg.params.epochs):
-        # Train fold, Test fold 계산
+    
+    # training, validation, test 진행
+    for epoch in range(cfg.params.epochs):
         model, cur_loss = train_one_epoch(
             cfg=cfg,
             model=model,
@@ -357,15 +394,15 @@ def train(cfg):
             }
 
         # best 모델 저장
-        if val_auc > best_auc:
-            if os.path.exists(cfg.paths.model_save_path):
-                os.makedirs(cfg.paths.model_save_path, exist_ok=True)                
-            best_auc = val_auc
-            best_model_save_path = f"{cfg.paths.model_save_path}/model-{epoch}.pth"
+        if val_auc > best_validation_auc:
+            if os.path.exists(model_save_root_path):
+                os.makedirs(model_save_root_path, exist_ok=True)                
+            best_validation_auc = val_auc
+            best_model_save_path = f"{model_save_root_path}/model-{epoch}.pth"
                     
             utility.save_model(model, model.state_dict(), best_model_save_path)
             print('--------------------------------')
-            print(f"Best Val AUC: {best_auc:.2f}, Current Val AUC: {val_auc:.2f}")
+            print(f"Best Val AUC: {best_validation_auc:.2f}, Current Val AUC: {val_auc:.2f}")
             print(f"!!best model saved!! epoch: {epoch}, Val ACC:{cur_acc:.2f}, Val AUC:{val_auc:.2f}")
             print('--------------------------------\n')
 
@@ -375,5 +412,11 @@ def train(cfg):
             test_loader=test_loader,
             epoch=epoch,
             device=device,
-            is_save_csv=True
+            test_predict_result_save_root_path=test_predict_result_save_root_path,
+            is_save_csv=True,
+            best_auc=best_test_auc
         )
+        
+        # best test auc 저장
+        if test_auc > best_test_auc:
+            best_test_auc = test_auc 
