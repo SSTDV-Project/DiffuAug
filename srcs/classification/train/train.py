@@ -225,7 +225,7 @@ def test_one_epoch(
     epoch_predicteds = list()
     epoch_targets = list()
     
-    # ROC 계산을 위한 리스트 초기화
+    # AUC 계산을 위한 리스트 초기화
     y_scores_list = list()
     y_true_list = list()
     
@@ -250,7 +250,7 @@ def test_one_epoch(
         total_data_num += targets.size(0)
         total_correct_num += (predicted == targets).sum().item()
         
-        # fold별 결과 저장
+        # 전체 결과 저장을 위해 리스트에 값 저장
         epoch_input_paths.append(input_paths)
         epoch_logit.append(logit)
         epoch_probs.append(prob)
@@ -330,8 +330,8 @@ def savecsv_prediction_results_for_epoch(
                                       file_path, 
                                       targets[row][col].item(), 
                                       predicted[row][col].item(),
-                                      round(probs[row][col].item(), 3),
-                                      round(logits[row][col].item(), 3)
+                                      round(probs[row][col].item(), 7), # 값이 3정도로 round되서 저장되면 추후 계산에서 문제가 생길 수 있기에, round를 안시키는 것도 방법
+                                      round(logits[row][col].item(), 7)
                                       ]
                                      )
     
@@ -470,7 +470,4 @@ def train(cfg):
         
         # best test auc 저장
         if test_auc > best_test_auc:
-            print("Current best AUC: ", best_test_auc)
-            print("return test AUC: ", test_auc)
-            
             best_test_auc = test_auc
