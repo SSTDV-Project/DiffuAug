@@ -1,11 +1,14 @@
 import os
 
-from DiffuAug.srcs.dataset_processing.metadata_processing.metadata_processing import *
+from DiffuAug.srcs.dataset_processing.metadata_processing.metadata_slice_processing import *
+from DiffuAug.srcs.dataset_processing.metadata_processing.metadata_patient_processing import *
 
 def main():
-    OPTION="origin_plus_augdata"
+    SLICE_OPTION="origin_plus_augdata"
+    PATIENT_OPTION = ""
     
-    if OPTION == "make_metadata":
+    # Slice-wise metadata processing
+    if SLICE_OPTION == "make_metadata":
         data_dir = r"/data/duke_data/size_64/split_datalabel"
         output_csv_path = r"/workspace/DiffuAug/metadata/classification/csv"
         
@@ -17,7 +20,7 @@ def main():
             class_num_data=100
         )
         
-    elif OPTION == "split_data":
+    elif SLICE_OPTION == "split_data":
         duke_csv_path = r"/workspace/DiffuAug/metadata/classification/csv/duke_data_total_200_balanced.csv"
         csv_output_root_path = r"/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1_balanced_200"
         split_train_test_val_csv(
@@ -25,10 +28,10 @@ def main():
             csv_output_root_path=csv_output_root_path
         )
         
-    elif OPTION == "origin_plus_augdata":
-        origin_train_csv_path = r"/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1_balanced_200/train_dataset.csv"
+    elif SLICE_OPTION == "origin_plus_augdata":
+        origin_train_csv_path = r"/workspace/DiffuAug/metadata/classification/patient_csv/patient100/balanced_class/0.8_0.1_0.1/train_dataset.csv"
         aug_file_parent_path = r"/data/results/generation/sampling/cfg/imbalanced/sampling_imgs/ddim/epoch_70/p_uncond_0.2/w_4.0"
-        output_csv_path = r"/workspace/DiffuAug/metadata/classification/aug_csv/0.8_0.1_0.1_balanced_200+50"
+        output_csv_path = r"/workspace/DiffuAug/metadata/classification/patient_csv/patient100/aug_csv"
         
         origin_plus_augdata(
             origin_train_dataset_path=origin_train_csv_path,
@@ -36,7 +39,7 @@ def main():
             output_csv_path=output_csv_path
         )
         
-    elif OPTION == "test_leak_data":
+    elif SLICE_OPTION == "test_leak_data":
         splitted_csv_root_path = r"/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1"
         train_data_path = os.path.join(splitted_csv_root_path, 'train_dataset.csv')
         val_data_path = os.path.join(splitted_csv_root_path, 'val_dataset.csv')
@@ -47,6 +50,22 @@ def main():
             val_data_path=val_data_path,
             test_data_path=test_data_path
         )
+        
+    # Patient-wise metadata processing
+    if PATIENT_OPTION == "patient_gather":
+        data_dir = r"/data/duke_data/patients/png_out_64"
+        save_csv_path = r"/workspace/DiffuAug/metadata/patient_unit/patient100"
+        gather_patient_data(data_dir, save_csv_path)
+    
+    elif PATIENT_OPTION == "balance_data":
+        input_csv_path = r"/workspace/DiffuAug/metadata/patient_unit/patient100/patient_data.csv"
+        output_save_path = r"/workspace/DiffuAug/metadata/patient_unit/patient100/balanced_class"
+        balance_patient_data(input_csv_path, output_save_path)
+        
+    elif PATIENT_OPTION == "split_train_test_val_patient":
+        csv_path = r"/workspace/DiffuAug/metadata/classification/patient_csv/patient100/balanced_class/balanced_patient_data.csv"
+        output_csv_path = r"/workspace/DiffuAug/metadata/classification/patient_csv/patient100/balanced_class/0.8_0.1_0.1"
+        split_train_test_val_patient_csv(csv_path, output_csv_path)
         
 
 if __name__ == "__main__":
