@@ -72,8 +72,10 @@ def compute_acc_with_slices(prediction_csv_path):
     """
     df = pd.read_csv(prediction_csv_path)
     
-    correct_slice = df[df['Predicted'] == df['Targets']]
-    acc = 100.0 * len(correct_slice) / len(df)
+    correct_slice = len(df[df['Predicted'] == df['Targets']])
+    print(f"Correct slice: {correct_slice}, Total slice: {len(df)}")
+    
+    acc = 100.0 * correct_slice / len(df)
     return acc
 
 

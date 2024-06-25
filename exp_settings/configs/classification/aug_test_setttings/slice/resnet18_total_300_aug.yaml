@@ -1,12 +1,13 @@
 paths:
   # Train, Val, Test CSV
-  csv_root_path: "/workspace/DiffuAug/metadata/classification/aug_csv/0.8_0.1_0.1_balanced_200+50+50"
-  train_csv_path: "/workspace/DiffuAug/metadata/classification/aug_csv/0.8_0.1_0.1_balanced_200+50+50/train_dataset.csv"
-  val_csv_path: "/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1_balanced_200/val_dataset.csv"
-  test_csv_path: "/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1_balanced_200/test_dataset.csv"
+  csv_root_path: "/workspace/DiffuAug/metadata/classification/slice_csv/aug_csv/0.8_0.1_0.1_balanced_200+50+50"
+  
+  train_csv_path: "/workspace/DiffuAug/metadata/classification/slice_csv/aug_csv/0.8_0.1_0.1_balanced_200+50+50/train_dataset.csv"
+  val_csv_path: "/workspace/DiffuAug/metadata/classification/slice_csv/0.8_0.1_0.1_balanced_200/val_dataset.csv"
+  test_csv_path: "/workspace/DiffuAug/metadata/classification/slice_csv/0.8_0.1_0.1_balanced_200/test_dataset.csv"
 
   # exp_result_path
-  exp_path: "/data/results/classification/exps/no_aug/balanced"
+  exp_path: "/data/results/classification/exps/aug/slices/balanced/o200+aug50+aug50"
 
   
 params:

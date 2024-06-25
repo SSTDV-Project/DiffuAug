@@ -353,17 +353,21 @@ def train(cfg):
     best_test_auc = 0.0
     
     csv_root_path = cfg.paths.csv_root_path
-    train_csv_path = os.path.join(csv_root_path, "train_dataset.csv")
-    val_csv_path = os.path.join(csv_root_path, "val_dataset.csv")
-    test_csv_path = os.path.join(csv_root_path, "test_dataset.csv")
+    train_csv_path = cfg.paths.train_csv_path
+    val_csv_path = cfg.paths.val_csv_path
+    test_csv_path = cfg.paths.test_csv_path
+    
+    # train_csv_path = os.path.join(csv_root_path, "train_dataset.csv")
+    # val_csv_path = os.path.join(csv_root_path, "val_dataset.csv")
+    # test_csv_path = os.path.join(csv_root_path, "test_dataset.csv")
 
-    # cfg.paths에 train_csv_path가 있는지 확인. 없으면 root_path의 csv 파일을 사용
-    try:
-       getattr(cfg.paths, "train_csv_path") 
-    except AttributeError:
-        train_csv_path = os.path.join(csv_root_path, "train_dataset.csv")
-        val_csv_path = os.path.join(csv_root_path, "val_dataset.csv")
-        test_csv_path = os.path.join(csv_root_path, "test_dataset.csv")
+    # # cfg.paths에 train_csv_path가 있는지 확인. 없으면 root_path의 csv 파일을 사용
+    # try:
+    #    getattr(cfg.paths, "train_csv_path") 
+    # except AttributeError:
+    #     train_csv_path = os.path.join(csv_root_path, "train_dataset.csv")
+    #     val_csv_path = os.path.join(csv_root_path, "val_dataset.csv")
+    #     test_csv_path = os.path.join(csv_root_path, "test_dataset.csv")
 
     # 결과 저장 디렉토리 생성
     print("Result save root path: ", cfg.paths.exp_path)
