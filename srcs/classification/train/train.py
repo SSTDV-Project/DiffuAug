@@ -362,6 +362,7 @@ def train(cfg):
     model_save_root_path = os.path.join(cfg.paths.exp_path, "model_weights")
     test_predict_result_save_root_path = os.path.join(cfg.paths.exp_path, "predict_result")
     
+    pathlib.Path(cfg.paths.exp_path).mkdir(exist_ok=True)
     pathlib.Path(model_save_root_path).mkdir(exist_ok=True)
     pathlib.Path(test_predict_result_save_root_path).mkdir(exist_ok=True)
 
