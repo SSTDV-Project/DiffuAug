@@ -1,0 +1,16 @@
+paths:
+  # Train, Val, Test CSV
+  csv_root_path: "/workspace/DiffuAug/metadata/classification/patient_csv/patient100/balanced_class/0.8_0.1_0.1"
+
+  # exp_result_path
+  exp_path: "/data/results/classification/exps/aug/patients/p100+s5200"
+  
+params:
+  task: train
+  objective: 64x64 image classification
+  img_size: 64
+  lr: 0.0001
+  channels: 1
+  batch_size: 32
+  epochs: 50
+  threshold: 0.5
