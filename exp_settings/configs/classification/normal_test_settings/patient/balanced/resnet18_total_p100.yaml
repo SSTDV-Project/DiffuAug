@@ -2,6 +2,10 @@ paths:
   # Train, Val, Test CSV
   csv_root_path: "/workspace/DiffuAug/metadata/classification/patient_csv/patient100/balanced_class/0.8_0.1_0.1"
 
+  train_csv_path: "/workspace/DiffuAug/metadata/classification/patient_csv/patient100/balanced_class/0.8_0.1_0.1/train_dataset.csv"
+  val_csv_path: "/workspace/DiffuAug/metadata/classification/patient_csv/patient100/balanced_class/0.8_0.1_0.1/val_dataset.csv"
+  test_csv_path: "/workspace/DiffuAug/metadata/classification/patient_csv/patient100/balanced_class/0.8_0.1_0.1/test_dataset.csv"
+
   # exp_result_path
   exp_path: "/data/results/classification/exps/no_aug/patients/balanced/patient_100"
   
