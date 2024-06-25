@@ -281,6 +281,17 @@ def test_one_epoch(
             predicted=epoch_predicteds,
             targets=epoch_targets, 
             current_epoch=epoch,
+            save_path=test_predict_result_save_root_path,
+            is_best=True
+            )
+    else:
+        savecsv_prediction_results_for_epoch(
+            input_paths=epoch_input_paths,
+            logits=epoch_logit,
+            probs=epoch_probs, 
+            predicted=epoch_predicteds,
+            targets=epoch_targets, 
+            current_epoch=epoch,
             save_path=test_predict_result_save_root_path
             )
         
@@ -297,7 +308,8 @@ def savecsv_prediction_results_for_epoch(
     predicted,
     targets,
     current_epoch, 
-    save_path
+    save_path,
+    is_best=False
     ):
     """
     Fold단위의 예측 결과를 CSV로 저장합니다.
@@ -324,7 +336,10 @@ def savecsv_prediction_results_for_epoch(
                                      )
     
     # DataFrame으로 변환 후 CSV로 저장
-    csv_save_path = f"{save_path}/predicted_{current_epoch}.csv"
+    if is_best:
+        csv_save_path = f"{save_path}/predicted_best_{current_epoch}.csv"    
+    else:
+        csv_save_path = f"{save_path}/predicted_{current_epoch}.csv"
     if not os.path.exists(os.path.dirname(csv_save_path)):
         os.makedirs(os.path.dirname(csv_save_path))
     
@@ -455,4 +470,7 @@ def train(cfg):
         
         # best test auc 저장
         if test_auc > best_test_auc:
-            best_test_auc = test_auc 
+            print("Current best AUC: ", best_test_auc)
+            print("return test AUC: ", test_auc)
+            
+            best_test_auc = test_auc
