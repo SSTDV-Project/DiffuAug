@@ -4,8 +4,8 @@ from DiffuAug.srcs.dataset_processing.metadata_processing.metadata_slice_process
 from DiffuAug.srcs.dataset_processing.metadata_processing.metadata_patient_processing import *
 
 def main():
-    SLICE_OPTION=""
-    PATIENT_OPTION = "split_train_test_val_patient"
+    SLICE_OPTION="origin_plus_augdata"
+    PATIENT_OPTION = ""
     
     # Slice-wise metadata processing
     if SLICE_OPTION == "make_metadata":
@@ -29,9 +29,9 @@ def main():
         )
         
     elif SLICE_OPTION == "origin_plus_augdata":
-        origin_train_csv_path = r"/workspace/DiffuAug/metadata/classification/csv/0.8_0.1_0.1_balanced_200/train_dataset.csv"
+        origin_train_csv_path = r"/workspace/DiffuAug/metadata/classification/patient_csv/patient100/balanced_class/0.8_0.1_0.1/train_dataset.csv"
         aug_file_parent_path = r"/data/results/generation/sampling/cfg/imbalanced/sampling_imgs/ddim/epoch_70/p_uncond_0.2/w_4.0"
-        output_csv_path = r"/workspace/DiffuAug/metadata/classification/aug_csv/0.8_0.1_0.1_balanced_200+50"
+        output_csv_path = r"/workspace/DiffuAug/metadata/classification/patient_csv/patient100/aug_csv"
         
         origin_plus_augdata(
             origin_train_dataset_path=origin_train_csv_path,

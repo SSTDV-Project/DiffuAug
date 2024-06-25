@@ -117,7 +117,7 @@ def split_train_test_val_csv(meta_csv_path, csv_output_root_path):
     print("Metadata is splitted and saved at", csv_output_root_path)
     
 
-def origin_plus_augdata(origin_train_dataset_path, aug_file_parent_path, output_csv_path):
+def origin_plus_augdata(origin_train_dataset_path, aug_file_parent_path, output_csv_path, aug_num=2600):
     # 1. 기존의 train_dataset.csv 파일을 불러오기
     train_df = pd.read_csv(origin_train_dataset_path)
     
@@ -125,8 +125,8 @@ def origin_plus_augdata(origin_train_dataset_path, aug_file_parent_path, output_
     neg_dir = os.path.join(aug_file_parent_path, 'neg')
     pos_dir = os.path.join(aug_file_parent_path, 'pos')
 
-    neg_images = random.sample([os.path.join(neg_dir, img) for img in os.listdir(neg_dir)], 50)
-    pos_images = random.sample([os.path.join(pos_dir, img) for img in os.listdir(pos_dir)], 50)
+    neg_images = random.sample([os.path.join(neg_dir, img) for img in os.listdir(neg_dir)], aug_num)
+    pos_images = random.sample([os.path.join(pos_dir, img) for img in os.listdir(pos_dir)], aug_num)
     
     # 3. 추출한 이미지 경로와 레이블을 기존 데이터에 추가
     new_data = []
