@@ -12,7 +12,7 @@ from torchvision.models import resnet18
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, roc_curve, auc
 
 from DiffuAug.srcs.datasets.duke_for_classification import DukeDatasetClassification
 from DiffuAug.srcs import utility
@@ -53,11 +53,12 @@ def compute_auc_with_slices(y_scores: list, y_true: list):
         y_true: 실제 레이블 리스트
     """
     # 모든 배치에 대한 예측 확률과 실제 레이블을 하나의 배열로 합치기
-    y_scores = np.array(y_scores)
-    y_true = np.array(y_true)
+    # np.array로 변환 후 1차원으로 변환    
+    y_scores = np.array(y_scores).ravel()
+    y_true = np.array(y_true).ravel()
     
-    auc = roc_auc_score(y_true, y_scores)
-    return auc
+    auc_score = roc_auc_score(y_true, y_scores)
+    return auc_score
 
 
 def compute_acc_with_slices(correct, total):

@@ -26,6 +26,8 @@ def compute_optimal_threshold(y_true, y_scores):
 
 def compute_auc_with_slices(prediction_csv_path):
     y_true, y_scores = get_true_and_scores_with_slices(prediction_csv_path)
+    y_true = np.array(y_true).ravel()
+    y_scores = np.array(y_scores).ravel()
     
     # AUC, Sensitivity, Specificity 계산
     _, sensitivity, specificity, roc_auc = compute_optimal_threshold(y_true, y_scores)
