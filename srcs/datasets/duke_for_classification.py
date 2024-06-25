@@ -59,7 +59,7 @@ class DukeDatasetClassification(Dataset):
             # A.VerticalFlip(),
             # A.Rotate(limit=(-180, 180), p=0.5),
             # A.ColorJitter(brightness=0,contrast=(1,5),saturation=0,hue=0), # Contrast
-            A.RandomBrightnessContrast(),
+            # A.RandomBrightnessContrast(),
             # A.Sharpen(),
             # A.ElasticTransform(alpha=1, sigma=50, alpha_affine=50, p=0.5), 
             ], is_check_shapes=False
