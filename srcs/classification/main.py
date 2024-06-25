@@ -17,9 +17,12 @@ def main():
         pred_result_csv_path = r"/data/results/classification/exps/no_aug/patients/balanced/patient_100/predict_result/predicted_best_10.csv"
         save_curve_png_path = r"/data/results/classification/exps/no_aug/patients/balanced/patient_100/plot"
     
-        # draw_roc_curve(pred_result_csv_path, save_curve_png_path)
-        compute_auc_with_slices(pred_result_csv_path)
-        # compute_acc_with_slices(pred_result_csv_path)
+        draw_roc_curve(pred_result_csv_path, save_curve_png_path)
+        sensitivity, specificity, roc_auc = compute_auc_with_slices(pred_result_csv_path)
+        acc = compute_acc_with_slices(pred_result_csv_path)
+        
+        print(f"AUC: {roc_auc:.2f}, Sensitivity: {sensitivity:.2f}, Specificity: {specificity:.2f}\n")
+        print(f"Accuracy: {acc:.2f}\n")
 
 
 if __name__ == '__main__':
