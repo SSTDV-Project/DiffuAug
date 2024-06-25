@@ -1,6 +1,6 @@
 import os
 
-from DiffuAug.srcs.dataset_processing.metadata_processing.metadata_processing import *
+from DiffuAug.srcs.dataset_processing.metadata_processing.metadata_slice_processing import *
 from DiffuAug.srcs.dataset_processing.metadata_processing.metadata_patient_processing import *
 
 def main():
