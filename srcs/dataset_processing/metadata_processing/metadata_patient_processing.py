@@ -4,6 +4,7 @@ import random
 import pandas as pd
 from natsort import natsorted
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split
 
 
 def gather_patient_data(root_dir, save_csv_path):
@@ -70,3 +71,30 @@ def balance_patient_data(input_csv_path, output_save_path):
     output_csv_path = os.path.join(output_save_path, 'balanced_patient_data.csv')
     balanced_df.to_csv(output_csv_path, index=False)
     print(f"Balanced data saved to {output_csv_path}")
+    
+    
+def split_train_test_val_patient_csv(input_csv_path, output_csv_path, random_state=990912):
+    """
+    환자 단위로 데이터 split
+    """
+    # CSV 파일 읽기
+    df = pd.read_csv(input_csv_path)
+
+    # 환자 목록 가져오기
+    patients = df['patient_number'].unique()
+
+    # 환자 목록을 train, val, test로 나누기
+    train_patients, test_patients = train_test_split(patients, test_size=0.2, random_state=random_state)
+    val_patients, test_patients = train_test_split(test_patients, test_size=0.5, random_state=random_state)
+
+    # 데이터프레임을 환자 기준으로 나누기
+    train_df = df[df['patient_number'].isin(train_patients)]
+    val_df = df[df['patient_number'].isin(val_patients)]
+    test_df = df[df['patient_number'].isin(test_patients)]
+
+    # 결과를 CSV로 저장
+    train_df.to_csv(os.path.join(output_csv_path, 'train_dataset.csv'), index=False)
+    val_df.to_csv(os.path.join(output_csv_path, 'val_dataset.csv'), index=False)
+    test_df.to_csv(os.path.join(output_csv_path, 'test_dataset.csv'), index=False)
+
+    print("Train, Validation, and Test datasets have been saved.")

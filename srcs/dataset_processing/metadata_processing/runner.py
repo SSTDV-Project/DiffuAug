@@ -5,7 +5,7 @@ from DiffuAug.srcs.dataset_processing.metadata_processing.metadata_patient_proce
 
 def main():
     SLICE_OPTION=""
-    PATIENT_OPTION = "balance_data"
+    PATIENT_OPTION = "split_train_test_val_patient"
     
     # Slice-wise metadata processing
     if SLICE_OPTION == "make_metadata":
@@ -61,6 +61,11 @@ def main():
         input_csv_path = r"/workspace/DiffuAug/metadata/patient_unit/patient100/patient_data.csv"
         output_save_path = r"/workspace/DiffuAug/metadata/patient_unit/patient100/balanced_class"
         balance_patient_data(input_csv_path, output_save_path)
+        
+    elif PATIENT_OPTION == "split_train_test_val_patient":
+        csv_path = r"/workspace/DiffuAug/metadata/classification/patient_csv/patient100/balanced_class/balanced_patient_data.csv"
+        output_csv_path = r"/workspace/DiffuAug/metadata/classification/patient_csv/patient100/balanced_class/0.8_0.1_0.1"
+        split_train_test_val_patient_csv(csv_path, output_csv_path)
         
 
 if __name__ == "__main__":
