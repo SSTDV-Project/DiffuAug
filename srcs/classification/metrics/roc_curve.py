@@ -26,12 +26,11 @@ def compute_optimal_threshold(y_true, y_scores):
 
 def compute_auc_with_slices(prediction_csv_path):
     y_true, y_scores = get_true_and_scores_with_slices(prediction_csv_path)
-    
+
     # AUC, Sensitivity, Specificity 계산
     _, sensitivity, specificity, roc_auc = compute_optimal_threshold(y_true, y_scores)
-    print(f"AUC: {roc_auc:.2f}")
-    print(f"Sensitivity: {sensitivity:.2f}, Specificity: {specificity:.2f}\n")
-
+    return sensitivity, specificity, roc_auc
+    
 
 def draw_roc_curve(pred_result_csv_path, save_curve_png_path):
     """
@@ -39,6 +38,8 @@ def draw_roc_curve(pred_result_csv_path, save_curve_png_path):
     """
     # ROC Curve 그리기를 위한 준비
     plt.figure()
+    if not os.path.exists(save_curve_png_path):
+        os.makedirs(save_curve_png_path)
     save_curve_png_path = os.path.join(save_curve_png_path, "roc_curve.png")
     
     # CSV에서 True와 예측 Score 추출
@@ -69,13 +70,13 @@ def compute_acc_with_slices(prediction_csv_path):
     Args:
         prediction_csv_root_path (str): Test fold에 대한 예측 결과가 저장된 CSV 파일의 경로입니다.
     """
-    print("------------------------------------------")
-    
     df = pd.read_csv(prediction_csv_path)
     
-    correct_slice = df[df['Predicted'] == df['Targets']]
-    acc = 100.0 * len(correct_slice) / len(df)
-    print(f"Accuracy: {acc:.2f}%\n")
+    correct_slice = len(df[df['Predicted'] == df['Targets']])
+    print(f"Correct slice: {correct_slice}, Total slice: {len(df)}")
+    
+    acc = 100.0 * correct_slice / len(df)
+    return acc
 
 
 def get_true_and_scores_with_slices(pred_result_csv_path):
@@ -89,4 +90,9 @@ def get_true_and_scores_with_slices(pred_result_csv_path):
     y_true = pred_result_df['Targets'].values
     y_scores = pred_result_df['Probs'].values
     
+    # numpy의 1차원 배열로 변환
+    y_true = np.array(y_true).ravel()
+    y_scores = np.array(y_scores).ravel()
+    
     return y_true, y_scores
+
