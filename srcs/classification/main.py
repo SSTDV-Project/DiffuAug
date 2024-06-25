@@ -14,8 +14,8 @@ def main():
         train(cfg)
         
     elif OPTION == "test":
-        pred_result_csv_path = r"/data/results/classification/exps/no_aug/balanced/total_200/predict_result/predicted_4.csv"
-        save_curve_png_path = r"/data/results/classification/exps/no_aug/balanced/total_200/plot"
+        pred_result_csv_path = r"/data/results/classification/exps/no_aug/patients/balanced/patient_100/predict_result/predicted_10.csv"
+        save_curve_png_path = r"/data/results/classification/exps/no_aug/patients/balanced/patient_100/plot"
     
         draw_roc_curve(pred_result_csv_path, save_curve_png_path)
         compute_auc_with_slices(pred_result_csv_path)

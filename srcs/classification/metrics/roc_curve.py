@@ -39,6 +39,8 @@ def draw_roc_curve(pred_result_csv_path, save_curve_png_path):
     """
     # ROC Curve 그리기를 위한 준비
     plt.figure()
+    if not os.path.exists(save_curve_png_path):
+        os.makedirs(save_curve_png_path)
     save_curve_png_path = os.path.join(save_curve_png_path, "roc_curve.png")
     
     # CSV에서 True와 예측 Score 추출

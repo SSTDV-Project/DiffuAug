@@ -44,6 +44,30 @@ def load_model(device, mode=None):
     return model
 
 
+def compute_auc_with_slices(y_scores: list, y_true: list):
+    """
+    AUC를 계산하여 반환합니다.
+    
+    Args:
+        y_scores: 예측 확률 리스트 (logit 값이 아닌 sigmoid 적용된 확률값)
+        y_true: 실제 레이블 리스트
+    """
+    # 모든 배치에 대한 예측 확률과 실제 레이블을 하나의 배열로 합치기
+    y_scores = np.array(y_scores)
+    y_true = np.array(y_true)
+    
+    auc = roc_auc_score(y_true, y_scores)
+    return auc
+
+
+def compute_acc_with_slices(correct, total):
+    """
+    Accuracy를 계산하여 반환합니다.
+    """
+    acc = 100.0 * (correct / total)
+    return acc
+
+
 def train_one_epoch(cfg, model, optimizer, loss_func, train_loader, batch_size, epoch, device):
     """ 
     모델을 한 epoch 동안 훈련합니다.
@@ -66,8 +90,8 @@ def train_one_epoch(cfg, model, optimizer, loss_func, train_loader, batch_size, 
     
     y_scores_list = list()
     y_true_list = list()
-    train_total = 0
-    train_correct = 0
+    total_data_num = 0
+    total_correct_num = 0
     epoch_loss = 0.0
 
     # 훈련 데이터에 대해 DataLoader를 반복합니다.
@@ -98,10 +122,10 @@ def train_one_epoch(cfg, model, optimizer, loss_func, train_loader, batch_size, 
         epoch_loss += loss.item()
         
         # ACC 계산을 위해 값 저장
-        train_total += predicted.size(0)
-        train_correct += (predicted==targets).sum().item()
+        total_data_num += predicted.size(0)
+        total_correct_num += (predicted==targets).sum().item()
         
-        # ROC 계산을 위해 값 저장)
+        # AUC 계산을 위해 값 저장
         y_scores_list.extend(prob.detach().cpu().numpy())
         y_true_list.extend(targets.cpu().numpy())
         
@@ -109,19 +133,20 @@ def train_one_epoch(cfg, model, optimizer, loss_func, train_loader, batch_size, 
             batch_loss = loss.item()
             print(f"Loss after mini-batch {idx + 1}: {batch_loss:.3f}")
 
+    # AUC, ACC 계산
+    auc = compute_auc_with_slices(
+        y_scores=y_scores_list, 
+        y_true=y_true_list
+        )    
+    acc = compute_acc_with_slices(
+        correct=total_correct_num,
+        total=total_data_num
+        )
 
-    # 모든 배치에 대한 예측 확률과 실제 레이블을 하나의 배열로 합치기
-    y_scores = np.array(y_scores_list)
-    y_true = np.array(y_true_list)
-
-    # ACC, AUC 계산
-    acc = 100.0 * (train_correct / train_total)
-    auc = roc_auc_score(y_true, y_scores)
-    
     # 학습 과정 중 epoch 평균 loss 계산
     epoch_loss = round(epoch_loss / len(train_loader), 3)
     
-    print(f"Training ACC: {acc:.3f}, correct: {train_correct}, total: {train_total}")
+    print(f"Training ACC: {acc:.3f}, correct: {total_correct_num}, total: {total_data_num}")
     print(f"Training AUC: {auc:.3f}")
     print(f"Training epoch mean loss: {epoch_loss} \n")
     
@@ -134,8 +159,8 @@ def valid_one_epoch(model, val_loader, cur_epoch, device):
     # ROC 계산을 위한 리스트 초기화
     y_scores_list = list()
     y_true_list = list()
-    validation_total = 0
-    validation_correct = 0
+    total_data_num = 0
+    total_correct_num = 0
 
     # 테스트 데이터를 반복하며 예측값을 생성한다
     for batch_idx, data in enumerate(val_loader):
@@ -155,21 +180,24 @@ def valid_one_epoch(model, val_loader, cur_epoch, device):
         predicted[threshold] = 1.0
         
         # 정확도 계산
-        validation_total += predicted.size(0)
-        validation_correct += (predicted == targets).sum().item()
+        total_data_num += predicted.size(0)
+        total_correct_num += (predicted == targets).sum().item()
         
-        # ROC 계산을 위해 값 저장
+        # AUC 계산을 위해 값 저장
         y_scores_list.extend(prob.detach().cpu().numpy())
         y_true_list.extend(targets.cpu().numpy())
 
-    y_scores = np.array(y_scores_list)
-    y_true = np.array(y_true_list)
+    # AUC, ACC 계산
+    auc = compute_auc_with_slices(
+        y_scores=y_scores_list, 
+        y_true=y_true_list
+        )    
+    acc = compute_acc_with_slices(
+        correct=total_correct_num,
+        total=total_data_num
+        )
 
-    # ACC, AUC 계산
-    acc = 100.0 * (validation_correct / validation_total)
-    auc = roc_auc_score(y_true, y_scores)
-    
-    print(f"Validation ACC: {acc:.3f}, correct: {validation_correct}, total: {validation_total}")
+    print(f"Validation ACC: {acc:.3f}, correct: {total_correct_num}, total: {total_data_num}")
     print(f"Validation AUC: {auc:.3f}\n")
     
     return acc, auc
@@ -187,8 +215,8 @@ def test_one_epoch(
     ):
     model.eval()
     
-    test_correct = 0
-    test_total = 0
+    total_data_num = 0
+    total_correct_num = 0
     
     epoch_input_paths = list()
     epoch_logit = list()
@@ -218,8 +246,8 @@ def test_one_epoch(
         predicted[threshold] = 1.0
         
         # 정확도 계산
-        test_total += targets.size(0)
-        test_correct += (predicted == targets).sum().item()
+        total_data_num += targets.size(0)
+        total_correct_num += (predicted == targets).sum().item()
         
         # fold별 결과 저장
         epoch_input_paths.append(input_paths)
@@ -228,15 +256,21 @@ def test_one_epoch(
         epoch_predicteds.append(predicted)
         epoch_targets.append(targets)
         
-        # ROC 계산을 위해 값 저장
+        # AUC 계산을 위해 값 저장
         y_scores_list.extend(prob.detach().cpu().numpy())
         y_true_list.extend(targets.cpu().numpy())
-    
 
-    # accuracy 출력 
-    acc = 100.0 * (test_correct / test_total)
-    auc = roc_auc_score(y_true_list, y_scores_list)
-    
+
+    # AUC, ACC 계산
+    auc = compute_auc_with_slices(
+        y_scores=y_scores_list, 
+        y_true=y_true_list
+        )    
+    acc = compute_acc_with_slices(
+        correct=total_correct_num,
+        total=total_data_num
+        )    
+
     # 에포크별 예측값에 대한 결과를 CSV로 저장합니다.
     if is_save_csv & (auc > best_auc):
         savecsv_prediction_results_for_epoch(
@@ -249,7 +283,7 @@ def test_one_epoch(
             save_path=test_predict_result_save_root_path
             )
         
-    print(f"Test ACC: {acc:.3f}, correct: {test_correct}, total: {test_total}")
+    print(f"Test ACC: {acc:.3f}, correct: {total_correct_num}, total: {total_data_num}")
     print(f"Test AUC: {auc:.3f}\n")
     
     return acc, auc
