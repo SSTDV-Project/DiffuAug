@@ -117,14 +117,13 @@ def generate_cond_ddim_img(cfg, model_path):
     print("total_iteration_num: ", total_iteration_num)
 
     # 샘플링 폴더 생성    
-    sampling_root_path = cfg.paths.sampling_path
+    sampling_root_path = os.path.join(cfg.paths.sampling_path, f"w_{cfg.cfg_params.w}")
     sampling_path = os.path.join(sampling_root_path, clas_name)
-    Path(sampling_path).mkdir(exist_ok=True)
+    Path(sampling_path).mkdir(parents=True, exist_ok=True)
     print("sampling_path: ", sampling_path)
     
     # 샘플링 파라미터 설정
     w = cfg.cfg_params.w
-    
     print("w: ", w)
     
     for i in range(total_iteration_num):    
