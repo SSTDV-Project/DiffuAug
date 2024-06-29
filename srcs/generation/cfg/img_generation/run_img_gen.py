@@ -3,7 +3,7 @@ from DiffuAug.srcs import utility
 
 
 def main():
-    GEN_SETTING_YAML_PATH = r"/workspace/DiffuAug/srcs/generation/cfg/img_generation/configs/imbalanced/p_uncond_0.2/w_0.0-4.0_neg-pos.yaml"
+    GEN_SETTING_YAML_PATH = r"/workspace/DiffuAug/srcs/generation/cfg/img_generation/configs/imbalanced/p_uncond_0.1/w_0.0-4.0_neg-pos.yaml"
     OPTION = 'ddim_class'
     
     utility.set_seed()
@@ -16,7 +16,7 @@ def main():
         # generate_cond_ddim_img(cfg, cfg.paths.model_path)
 
         # 지정된 w 값까지 이미지 생성
-        for i in range(37):
+        for i in range(40):
             cfg.cfg_params.w = round(cfg.cfg_params.w + 0.1, 1)
 
             for class_num in range(2):
