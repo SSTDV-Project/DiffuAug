@@ -19,7 +19,7 @@ params:
   dim_mults: [1, 2, 2]
 
 cfg_params:
-  sampling_class_num: 0
+  sampling_class_num: 1
   model_total_class_num: 2
   w: 4.0
 

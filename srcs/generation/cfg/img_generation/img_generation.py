@@ -37,10 +37,10 @@ def generate_cond_ddpm_img(cfg, model_path):
     n_class = cfg.cfg_params.model_total_class_num
     
     # 한 번에 생성할 이미지 수
-    batch_size = 16
+    batch_size = cfg.generation.gen_img_num
     
     # 생성할 이미지의 class 선택
-    select_class_num = 0
+    select_class_num = cfg.cfg_params.sampling_class_num
     clas_name = "pos" if select_class_num == 1 else "neg"
     print("class_name: ", clas_name)
 
