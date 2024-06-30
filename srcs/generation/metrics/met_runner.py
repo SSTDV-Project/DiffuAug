@@ -48,6 +48,8 @@ def main():
 
     elif OPTION == "ALL":
         DUKE_DATA_PATH = r"/data/duke_data/size_64/split_datalabel"
+        RANDOM_BALANCED_ORIGIN_DATA_PATH = r"/data/duke_data/size_64/random_balanced_origin_data"
+        
         SAMPLING_ROOT_PATH = r"/data/results/generation/sampling/cfg/imbalanced/sampling_imgs/ddim/epoch_70/p_uncond_0.1"
         device = "cuda:0" if torch.cuda.is_available() else "cpu"
         w = -0.1
@@ -76,7 +78,9 @@ def main():
             # Precision, Recall 계산
             with torch.no_grad():
                 # real
-                ipr.compute_manifold_ref(DUKE_DATA_PATH) # manifold_ref값을 구해 self.manifold_ref에 저장
+                
+                # TODO: Real data에 대해 생성된 이미지와 개수를 동일하게 맞추어 계산할 수 있도록 수정
+                ipr.compute_manifold_ref(RANDOM_BALANCED_ORIGIN_DATA_PATH) # manifold_ref값을 구해 self.manifold_ref에 저장
                 if len(fname_precalc) > 0:
                     ipr.save_ref(fname_precalc)
                     print('path_fake (%s) is ignored for precalc' % fake_path)
