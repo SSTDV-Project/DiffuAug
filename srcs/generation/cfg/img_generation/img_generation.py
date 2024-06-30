@@ -16,7 +16,7 @@ def load_model(cfg, model_path):
             out_channels=cfg.params.channels,
             channel_mult=cfg.params.dim_mults,
             attention_resolutions=[],
-            class_num=cfg.cfg_params.class_num
+            class_num=cfg.cfg_params.model_total_class_num
         )
     
         # 모델 로드    
@@ -34,13 +34,13 @@ def generate_cond_ddpm_img(cfg, model_path):
  
     # 설정 값 로드
     img_size = cfg.params.img_size
-    n_class = cfg.cfg_params.class_num
+    n_class = cfg.cfg_params.model_total_class_num
     
     # 한 번에 생성할 이미지 수
-    batch_size = 16
+    batch_size = cfg.generation.gen_img_num
     
     # 생성할 이미지의 class 선택
-    select_class_num = 0
+    select_class_num = cfg.cfg_params.sampling_class_num
     clas_name = "pos" if select_class_num == 1 else "neg"
     print("class_name: ", clas_name)
 
@@ -93,7 +93,7 @@ def generate_cond_ddim_img(cfg, model_path):
     
     # 설정 값 로드
     img_size = cfg.params.img_size
-    n_class = cfg.cfg_params.class_num
+    n_class = cfg.cfg_params.model_total_class_num
     
     # 한 번에 생성할 이미지 수
     batch_size = cfg.generation.gen_img_num
@@ -117,14 +117,13 @@ def generate_cond_ddim_img(cfg, model_path):
     print("total_iteration_num: ", total_iteration_num)
 
     # 샘플링 폴더 생성    
-    sampling_root_path = cfg.paths.sampling_path
+    sampling_root_path = os.path.join(cfg.paths.sampling_path, f"w_{cfg.cfg_params.w}")
     sampling_path = os.path.join(sampling_root_path, clas_name)
-    Path(sampling_path).mkdir(exist_ok=True)
+    Path(sampling_path).mkdir(parents=True, exist_ok=True)
     print("sampling_path: ", sampling_path)
     
     # 샘플링 파라미터 설정
     w = cfg.cfg_params.w
-    
     print("w: ", w)
     
     for i in range(total_iteration_num):    

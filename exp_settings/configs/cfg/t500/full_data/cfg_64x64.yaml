@@ -1,5 +1,5 @@
 paths:
-  exp_path: "/data/results/generation/exps/cfg_exps/t500"
+  exp_path: "/data/results/generation/exps/cfg_exps/imbalanced/t500/p_uncond_0.1"
   log_dir: "logs"
   model_dir: "models"
   sampling_path: "/data/results/generation/sampling/sampling_tests"
@@ -26,7 +26,7 @@ params:
 
 cfg_params:
   class_num: 2
-  p_uncond: 0.2
+  p_uncond: 0.1
   
   # weight_decay: 0.9
 
