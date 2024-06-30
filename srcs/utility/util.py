@@ -61,6 +61,27 @@ def set_seed(seed=990912):
     torch.backends.cudnn.benchmark = False
 
 
+def set_normal_logger(output_log_path):
+    log_folder = Path(output_log_path)
+    log_folder.mkdir(exist_ok=True)
+
+    log_path = os.path.join(output_log_path, "stdout.txt")
+    
+    stream_handler = logging.StreamHandler()
+    file_handler = logging.FileHandler(log_path)
+    
+    formatter = logging.Formatter(
+            "%(levelname)s - %(filename)s - %(asctime)s - %(message)s"
+        )
+    stream_handler.setFormatter(formatter)
+    file_handler.setFormatter(formatter)
+
+    logger = logging.getLogger()
+    logger.addHandler(stream_handler)
+    logger.addHandler(file_handler)
+    logger.setLevel("INFO")
+
+
 def set_logger(cfg):
     log_path = os.path.join(cfg.paths.exp_path, cfg.paths.log_dir)
     

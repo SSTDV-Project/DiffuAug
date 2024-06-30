@@ -1,11 +1,11 @@
 import os
+import logging
 
 import torch
 
 from DiffuAug.srcs.generation.metrics.fid import compute_fid
 from DiffuAug.srcs.generation.metrics.improved_precision_recall import IPR
 from DiffuAug.srcs import utility
-
 
 def main():
     OPTION = "ALL"
@@ -47,10 +47,13 @@ def main():
         print('recall:', recall)
 
     elif OPTION == "ALL":
+        LOG_PATH = r"/data/results/generation/metric_log"
         DUKE_DATA_PATH = r"/data/duke_data/size_64/split_datalabel"
         RANDOM_BALANCED_ORIGIN_DATA_PATH = r"/data/duke_data/size_64/random_balanced_origin_data"
         
         SAMPLING_ROOT_PATH = r"/data/results/generation/sampling/cfg/imbalanced/sampling_imgs/ddim/epoch_70/p_uncond_0.1"
+        
+        utility.set_normal_logger(LOG_PATH)
         device = "cuda:0" if torch.cuda.is_available() else "cpu"
         w = -0.1
 
@@ -67,13 +70,16 @@ def main():
             fake_path = os.path.join(SAMPLING_ROOT_PATH, f"w_{w}")
             
             print(f"FID 계산, w: {w}")
+            logging.info(f"w: {w}")
+            
              # FID 계산
-            compute_fid(
+            fid_result = compute_fid(
                 device=device,
                 original_data_path=DUKE_DATA_PATH,
                 generated_data_path=fake_path
-                )   
-            print(f"\n")
+                )
+            print(f"FID Score: {fid_result:.2f}")    
+            logging.info(f"FID Score: {fid_result:.2f}")
             
             # Precision, Recall 계산
             with torch.no_grad():
@@ -90,6 +96,7 @@ def main():
                 precision, recall = ipr.precision_and_recall(fake_path)
             
             print(f"Precision: {precision}, Recall: {recall}")
+            logging.info(f"Precision: {precision}, Recall: {recall}\n")
             print(f"\n")
                 
 

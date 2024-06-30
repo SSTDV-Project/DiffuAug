@@ -123,4 +123,4 @@ def compute_fid(device, original_data_path, generated_data_path):
 
     # FID 계산 값 출력
     fid_result = fid.compute()
-    print(f"FID Score: {fid_result:.2f}")    
+    return fid_result
