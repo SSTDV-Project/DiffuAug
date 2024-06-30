@@ -79,7 +79,7 @@ def main():
             with torch.no_grad():
                 # real
                 
-                # TODO: Real data에 대해 생성된 이미지와 개수를 동일하게 맞추어 계산할 수 있도록 수정
+                # Real data에 대해 생성된 이미지와 개수를 동일하게 맞추어 계산할 수 있도록 수정
                 ipr.compute_manifold_ref(RANDOM_BALANCED_ORIGIN_DATA_PATH) # manifold_ref값을 구해 self.manifold_ref에 저장
                 if len(fname_precalc) > 0:
                     ipr.save_ref(fname_precalc)
