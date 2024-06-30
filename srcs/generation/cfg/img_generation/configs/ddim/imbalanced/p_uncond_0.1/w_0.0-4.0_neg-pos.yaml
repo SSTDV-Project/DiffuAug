@@ -1,6 +1,6 @@
 paths:
-  model_path: "/data/results/generation/exps/cfg_exps/imbalanced/t500/models/69_fianl_ckpt.pth"
-  sampling_path: "/data/results/generation/sampling/cfg/balanced/sampling_imgs/ddim/epoch70/p_uncond_0.2/w_0.0"
+  model_path: "/data/results/generation/exps/cfg_exps/imbalanced/t500/p_uncond_0.1/models/69_fianl_ckpt.pth"
+  sampling_path: "/data/results/generation/sampling/cfg/imbalanced/sampling_imgs/ddim/epoch_70/p_uncond_0.1/4.0"
 
 information:
   img_size: 64
@@ -19,13 +19,13 @@ params:
   dim_mults: [1, 2, 2]
 
 generation:
-  gen_img_num: 64
+  gen_img_num: 128
   target_imgs_num: 2605 # 생성할 이미지의 개수
 
 cfg_params:
-  sampling_class_num: 1
-  class_num: 2
-  w: 0.0
+  sampling_class_num: 0
+  model_total_class_num: 2
+  w: 4.0
 
 log:
   verbose: "info" # "Verbose level: info | debug | warning | critical",
