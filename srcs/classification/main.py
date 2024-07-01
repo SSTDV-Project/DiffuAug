@@ -3,7 +3,7 @@ from DiffuAug.srcs.classification.metrics.roc_curve import *
 from DiffuAug.srcs import utility
 
 def main():
-    YAML_PATH = r"/workspace/DiffuAug/exp_settings/configs/classification/aug_test_setttings/patient/resnet18_total_normal_aug.yaml"
+    YAML_PATH = r"/workspace/DiffuAug/exp_settings/configs/classification/aug_test_setttings/patient/ddim/p_uncond_0.2/resnet18_total_p100+aug5200_diff_w.yaml"
     OPTION = "train"
     
     utility.set_seed()
