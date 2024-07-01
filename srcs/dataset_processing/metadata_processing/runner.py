@@ -30,14 +30,14 @@ def main():
         
     elif SLICE_OPTION == "origin_plus_augdata":
         origin_train_csv_path = r"/workspace/DiffuAug/metadata/classification/patient_csv/patient100/balanced_class/0.8_0.1_0.1/train_dataset.csv"
-        aug_file_parent_path = r"/data/results/generation/sampling/cfg/imbalanced/sampling_imgs/ddim/epoch_70/p_uncond_0.2/w_4.0"
-        output_csv_path = r"/workspace/DiffuAug/metadata/classification/patient_csv/patient100/aug_csv/ddim/p_uncond_0.2"
+        aug_file_parent_path = r"/data/results/generation/sampling/cfg/imbalanced/sampling_imgs/ddpm"
+        output_csv_path = r"/workspace/DiffuAug/metadata/classification/patient_csv/patient100/aug_csv/ddpm"
         
         origin_plus_augdata(
             origin_train_dataset_path=origin_train_csv_path,
             aug_file_parent_path=aug_file_parent_path,
             output_csv_path=output_csv_path,
-            csv_name="aug_train_ddim_w_4.0.csv",
+            csv_name="ddpm_w_4.0.csv",
         )
         
     elif SLICE_OPTION == "test_leak_data":
