@@ -73,7 +73,7 @@ def compute_fid(device, original_data_path, generated_data_path):
     )
                                                                                                                                       
     # 참고: https://github.com/mueller-franzes/medfusion/blob/main/scripts/evaluate_images.py
-    fid = FrechetInceptionDistance(feature=64, normalize=True) 
+    fid = FrechetInceptionDistance(feature=2048, normalize=True) 
     fid.to(device)
     
     # Dataset 선언
@@ -81,7 +81,7 @@ def compute_fid(device, original_data_path, generated_data_path):
         data_dir=original_data_path, 
         transform=img_transform,
         target_label="all",
-        each_total=2600,
+        each_total=None,
         is_eval=True
         )
     dataset_fake = DukeDataset(

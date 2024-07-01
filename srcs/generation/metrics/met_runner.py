@@ -80,7 +80,7 @@ def main():
              # FID 계산
             fid_result = compute_fid(
                 device=device,
-                original_data_path=RANDOM_BALANCED_ORIGIN_DATA_PATH,
+                original_data_path=DUKE_DATA_PATH,
                 generated_data_path=fake_path
                 )
             print(f"FID Score: {fid_result:.2f}")    
