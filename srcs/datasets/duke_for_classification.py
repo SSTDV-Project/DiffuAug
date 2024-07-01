@@ -57,7 +57,7 @@ class DukeDatasetClassification(Dataset):
             A.Resize(64, 64),
             # A.HorizontalFlip(),
             # A.VerticalFlip(),
-            A.Rotate(limit=(-180, 180), p=0.5),
+            A.Rotate(limit=(-15, 15), p=0.5),
             # A.ColorJitter(brightness=0,contrast=(1,5),saturation=0,hue=0), # Contrast
             # A.RandomBrightnessContrast(),
             # A.Sharpen(),
