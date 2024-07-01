@@ -1,6 +1,6 @@
 paths:
   model_path: "/data/results/generation/exps/cfg_exps/imbalanced/t500/p_uncond_0.1/models/69_fianl_ckpt.pth"
-  sampling_path: "/data/results/generation/sampling/cfg/imbalanced/sampling_imgs/ddim/epoch_70/p_uncond_0.1/4.0"
+  sampling_path: "/data/results/generation/sampling/cfg/imbalanced/sampling_imgs/ddim/epoch_70/p_uncond_0.1"
 
 information:
   img_size: 64
@@ -19,7 +19,7 @@ params:
   dim_mults: [1, 2, 2]
 
 generation:
-  gen_img_num: 128
+  gen_img_num: 256
   target_imgs_num: 2605 # 생성할 이미지의 개수
 
 cfg_params:
