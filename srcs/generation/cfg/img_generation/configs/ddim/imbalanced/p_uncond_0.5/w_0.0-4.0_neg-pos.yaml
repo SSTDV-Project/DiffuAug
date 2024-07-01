@@ -1,0 +1,31 @@
+paths:
+  model_path: "/data/results/generation/exps/cfg_exps/imbalanced/t500/p_uncond_0.5/models/69_fianl_ckpt.pth"
+  sampling_path: "/data/results/generation/sampling/cfg/imbalanced/sampling_imgs/ddim/epoch_70/p_uncond_0.5"
+
+information:
+  img_size: 64
+  timesteps: 500
+  p_uncond: 0.2
+  epoch: 69
+
+params:
+  task: train
+  objective: 64x64 image generation
+  img_size: 64
+  learning_rate: 0.0001
+  timesteps: 500
+  channels: 1
+  init_channels: 96
+  dim_mults: [1, 2, 2]
+
+generation:
+  gen_img_num: 180
+  target_imgs_num: 2605 # 생성할 이미지의 개수
+
+cfg_params:
+  sampling_class_num: 0
+  model_total_class_num: 2
+  w: -0.1
+
+log:
+  verbose: "info" # "Verbose level: info | debug | warning | critical",
