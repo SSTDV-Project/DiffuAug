@@ -56,7 +56,12 @@ def main():
         
         utility.set_normal_logger(LOG_PATH)
         device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        w = -0.1
+
+        w_list = [
+            0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
+            1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9,
+            2.0, 3.0, 4.0
+        ]
 
         # Precision, Recall
         batch_size = 200 # 기존 코드의 defulat 값
@@ -66,8 +71,7 @@ def main():
         ipr = IPR(batch_size, k, num_samples)
         
         # 지정된 w 값까지 이미지 생성
-        for i in range(40):
-            w = round(w + 0.1, 1)
+        for w in w_list:
             fake_path = os.path.join(SAMPLING_ROOT_PATH, f"w_{w}")
             
             print(f"FID 계산, w: {w}")
@@ -76,7 +80,7 @@ def main():
              # FID 계산
             fid_result = compute_fid(
                 device=device,
-                original_data_path=DUKE_DATA_PATH,
+                original_data_path=RANDOM_BALANCED_ORIGIN_DATA_PATH,
                 generated_data_path=fake_path
                 )
             print(f"FID Score: {fid_result:.2f}")    
