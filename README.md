@@ -17,6 +17,7 @@ This repository contains code for training a model to generate breast MRI using 
 <img src="https://github.com/ArtistDeveloper/DiffuAug/assets/40491724/b382736d-0a57-4a22-aac1-3c9aedf0c75a" width="20%" />
 
 <br/>
+<br/>
 
 ## Verifying Augmentation Performance through Generative Models
 ![image](https://github.com/user-attachments/assets/3eb5e2f7-ff4e-4553-85fb-086ad0123e5c)
