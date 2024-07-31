@@ -1,6 +1,7 @@
 # DiffuAug
 This repository contains code for training a model to generate breast MRI using Classifier-Free-Diffusion-Guidance and sampling with DDPM and DDIM.
 
+## Generation Results
 ### With tumors
 <img src="https://github.com/ArtistDeveloper/DiffuAug/assets/40491724/25ddfe70-7072-4ed4-9fcd-cbad2932a6b8" width="20%" />
 <img src="https://github.com/ArtistDeveloper/DiffuAug/assets/40491724/c24e6916-8021-4a9d-ad08-7d80736f11e7" width="20%" />
