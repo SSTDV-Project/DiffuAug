@@ -36,3 +36,7 @@ conda activate DiffuAug
 pip install -r requirements.txt
 ```
 
+## Acknowledgement
+This work was supported by Institute of Information & communications Technology Planning &
+Evaluation (IITP) grant funded by the Korea government(MSIT) (No.1711195685, Development of
+object-oriented synthetic data generation and evaluation methods)
